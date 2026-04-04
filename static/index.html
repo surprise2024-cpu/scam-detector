@@ -22,6 +22,10 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
+        .container > * {
+             margin-bottom: 12px;
+        }
+
         textarea {
             width: 100%;
             padding: 12px;
@@ -29,10 +33,12 @@
             border: 1px solid #ccc;
             resize: none;
             font-size: 14px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
         }
 
         button {
-            margin-top: 15px;
+            margin-top: 10px;
             padding: 12px;
             width: 100%;
             border: none;
@@ -41,6 +47,7 @@
             color: white;
             font-size: 16px;
             cursor: pointer;
+            display: block;
         }
 
         button:hover {
@@ -52,11 +59,17 @@
             padding: 15px;
             border-radius: 10px;
             display: none;
+            transition: all 0.3s ease;
         }
 
         .low { background: #e6ffed; color: #1b7a3d; }
         .medium { background: #fff4e5; color: #b26a00; }
         .high { background: #ffe5e5; color: #a10000; }
+
+        #resultText {
+            font-size: 22px;
+            font-weight: bold;
+        }
 
         ul {
             text-align: left;
@@ -68,6 +81,11 @@
             font-size: 14px;
             color: gray;
         }
+
+        #advice {
+            margin-top: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -78,12 +96,14 @@
 
     <textarea id="inputText" rows="5" placeholder="Paste message or link here..."></textarea>
 
-    <button onclick="scan()">Scan Message</button>
+    <button id="scanBtn" onclick="scan()">Scan Message</button>
+    <button onclick="loadExample()">Try Example</button>
 
     <div id="loading" class="loading"></div>
 
     <div id="resultCard" class="result-card">
         <h3 id="resultText"></h3>
+        <p id="advice"></p>
         <ul id="reasons"></ul>
     </div>
 </div>
@@ -93,9 +113,19 @@ async function scan() {
     const text = document.getElementById("inputText").value;
     const loading = document.getElementById("loading");
     const resultCard = document.getElementById("resultCard");
+    const button = document.getElementById("scanBtn");
+    const advice = document.getElementById("advice");
 
-    // Show loading
-    loading.innerText = "Scanning...";
+    // 1. Input validation
+    if (!text.trim()) {
+        loading.innerText = "Please enter a message.";
+        return;
+    }
+
+    // 2. Disable button + loading state
+    button.disabled = true;
+    button.innerText = "Scanning...";
+    loading.innerText = "Analyzing message...";
     resultCard.style.display = "none";
 
     try {
@@ -108,20 +138,34 @@ async function scan() {
         const data = await response.json();
 
         loading.innerText = "";
+        button.disabled = false;
+        button.innerText = "Scan Message";
 
-        // Show result card
         resultCard.style.display = "block";
 
         const resultText = document.getElementById("resultText");
-        resultText.innerText = "Risk: " + data.risk;
 
-        // Apply color class
+        // 3. Icons + risk display
+        if (data.risk === "HIGH") {
+            resultText.innerText = "🔴 HIGH RISK";
+            advice.innerText = "⚠️ Do NOT engage. This is likely a scam.";
+        }
+        else if (data.risk === "MEDIUM") {
+            resultText.innerText = "🟡 MEDIUM RISK";
+            advice.innerText = "⚠️ Be cautious. Verify before taking action.";
+        }
+        else {
+            resultText.innerText = "🟢 LOW RISK";
+            advice.innerText = "✅ This message appears safe.";
+        }
+
+        // 4. Apply color styling
         resultCard.className = "result-card";
         if (data.risk === "HIGH") resultCard.classList.add("high");
         else if (data.risk === "MEDIUM") resultCard.classList.add("medium");
         else resultCard.classList.add("low");
 
-        // Display reasons
+        // 5. Display reasons
         const reasonsList = document.getElementById("reasons");
         reasonsList.innerHTML = "";
 
@@ -133,7 +177,15 @@ async function scan() {
 
     } catch (error) {
         loading.innerText = "Something went wrong. Try again.";
+        button.disabled = false;
+        button.innerText = "Scan Message";
     }
+}
+
+// 6. Example button
+function loadExample() {
+    document.getElementById("inputText").value =
+    "URGENT: Your bank account has been blocked. Click http://fakebank.com and enter your OTP.";
 }
 </script>
 
