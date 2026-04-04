@@ -22,7 +22,7 @@ placeholder="Paste message or link here..."></textarea>
 async function scan() {
     let text = document.getElementById("inputText").value;
 
-    let response = await fetch("http://127.0.0.1:5000/scan", {
+    let response = await fetch("/scan", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
