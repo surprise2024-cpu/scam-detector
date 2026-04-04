@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import re
@@ -18,7 +20,7 @@ def detect_scam(text):
         reasons.append("Contains urgent language")
 
     # Rule 2: Link detection
-    if re.search(r"http[s]?://", text):
+    if re.search(r"https?://", text):
         score += 2
         reasons.append("Contains a link")
 
@@ -54,4 +56,5 @@ def home():
     return app.send_static_file("index.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))  # use platform-provided port
+    app.run(debug=True, host="0.0.0.0", port=port)
