@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Scam Detector</title>
+</head>
+<body style="font-family: Arial; text-align: center; margin-top: 50px;">
+
+<h1>AI Scam Detector</h1>
+
+<textarea id="inputText" rows="6" cols="50"
+style="padding:10px; width:300px;"
+placeholder="Paste message or link here..."></textarea>
+
+<br><br>
+
+<button onclick="scan()" style="padding:10px 20px;">Scan</button>
+
+<h2 id="result"></h2>
+<ul id="reasons" style="list-style:none;"></ul>
+
+<script>
+async function scan() {
+    let text = document.getElementById("inputText").value;
+
+    let response = await fetch("http://127.0.0.1:5000/scan", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ text: text })
+    });
+
+    let data = await response.json();
+
+    document.getElementById("result").innerText = "Risk: " + data.risk;
+
+    let reasonsList = document.getElementById("reasons");
+    reasonsList.innerHTML = "";
+
+    data.reasons.forEach(reason => {
+        let li = document.createElement("li");
+        li.innerText = reason;
+        reasonsList.appendChild(li);
+    });
+}
+</script>
+
+</body>
+</html>
