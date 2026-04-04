@@ -2,46 +2,138 @@
 <html>
 <head>
     <title>AI Scam Detector</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            resize: none;
+            font-size: 14px;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            background: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .result-card {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .low { background: #e6ffed; color: #1b7a3d; }
+        .medium { background: #fff4e5; color: #b26a00; }
+        .high { background: #ffe5e5; color: #a10000; }
+
+        ul {
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .loading {
+            margin-top: 10px;
+            font-size: 14px;
+            color: gray;
+        }
+    </style>
 </head>
-<body style="font-family: Arial; text-align: center; margin-top: 50px;">
 
-<h1>AI Scam Detector</h1>
+<body>
 
-<textarea id="inputText" rows="6" cols="50"
-style="padding:10px; width:300px;"
-placeholder="Paste message or link here..."></textarea>
+<div class="container">
+    <h2>Scam Detector</h2>
 
-<br><br>
+    <textarea id="inputText" rows="5" placeholder="Paste message or link here..."></textarea>
 
-<button onclick="scan()" style="padding:10px 20px;">Scan</button>
+    <button onclick="scan()">Scan Message</button>
 
-<h2 id="result"></h2>
-<ul id="reasons" style="list-style:none;"></ul>
+    <div id="loading" class="loading"></div>
+
+    <div id="resultCard" class="result-card">
+        <h3 id="resultText"></h3>
+        <ul id="reasons"></ul>
+    </div>
+</div>
 
 <script>
 async function scan() {
-    let text = document.getElementById("inputText").value;
+    const text = document.getElementById("inputText").value;
+    const loading = document.getElementById("loading");
+    const resultCard = document.getElementById("resultCard");
 
-    let response = await fetch("/scan", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ text: text })
-    });
+    // Show loading
+    loading.innerText = "Scanning...";
+    resultCard.style.display = "none";
 
-    let data = await response.json();
+    try {
+        const response = await fetch("/scan", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ text })
+        });
 
-    document.getElementById("result").innerText = "Risk: " + data.risk;
+        const data = await response.json();
 
-    let reasonsList = document.getElementById("reasons");
-    reasonsList.innerHTML = "";
+        loading.innerText = "";
 
-    data.reasons.forEach(reason => {
-        let li = document.createElement("li");
-        li.innerText = reason;
-        reasonsList.appendChild(li);
-    });
+        // Show result card
+        resultCard.style.display = "block";
+
+        const resultText = document.getElementById("resultText");
+        resultText.innerText = "Risk: " + data.risk;
+
+        // Apply color class
+        resultCard.className = "result-card";
+        if (data.risk === "HIGH") resultCard.classList.add("high");
+        else if (data.risk === "MEDIUM") resultCard.classList.add("medium");
+        else resultCard.classList.add("low");
+
+        // Display reasons
+        const reasonsList = document.getElementById("reasons");
+        reasonsList.innerHTML = "";
+
+        data.reasons.forEach(reason => {
+            const li = document.createElement("li");
+            li.innerText = reason;
+            reasonsList.appendChild(li);
+        });
+
+    } catch (error) {
+        loading.innerText = "Something went wrong. Try again.";
+    }
 }
 </script>
 
