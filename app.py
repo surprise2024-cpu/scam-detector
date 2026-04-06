@@ -1,67 +1,58 @@
-import os
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import re
+import csv
+from datetime import datetime
 
-# Serve static files from the "static" folder
 app = Flask(__name__, static_url_path='', static_folder='static')
 CORS(app)
 
-# rest of your code stays the same
-
+# ---------------- DETECTION LOGIC ----------------
 def detect_scam(text):
     text_lower = text.lower()
     score = 0
     reasons = []
 
-    # 1. Urgency / pressure
-    urgency_words = ["urgent", "immediately", "act now", "final notice", "account blocked"]
-    if any(word in text_lower for word in urgency_words):
+    # Urgency
+    if any(word in text_lower for word in ["urgent", "immediately", "act now", "final notice", "account blocked"]):
         score += 2
         reasons.append("Uses urgent or threatening language")
 
-    # 2. Suspicious links
+    # Links
     if re.search(r"http[s]?://", text_lower):
         score += 2
         reasons.append("Contains a link")
 
-        # Suspicious domains
         if any(domain in text_lower for domain in [".xyz", ".top", "bit.ly", "tinyurl"]):
             score += 2
             reasons.append("Uses suspicious or shortened link")
 
-    # 3. Sensitive information
-    sensitive_words = ["otp", "password", "pin", "bank details", "cvv"]
-    if any(word in text_lower for word in sensitive_words):
+    # Sensitive info
+    if any(word in text_lower for word in ["otp", "password", "pin", "bank details", "cvv"]):
         score += 3
         reasons.append("Requests sensitive information")
 
-    # 4. Money / reward scams
-    reward_words = ["winner", "lottery", "prize", "free money", "reward"]
-    if any(word in text_lower for word in reward_words):
+    # Rewards
+    if any(word in text_lower for word in ["winner", "lottery", "prize", "free money", "reward"]):
         score += 2
         reasons.append("Promises money or rewards")
 
-    # 5. Impersonation (banks / companies)
-    impersonation_words = ["fnb", "standard bank", "paypal", "dhl", "sars"]
-    if any(word in text_lower for word in impersonation_words):
+    # Impersonation
+    if any(word in text_lower for word in ["fnb", "standard bank", "paypal", "dhl", "sars"]):
         score += 2
         reasons.append("Pretends to be a trusted organization")
 
-    # 6. Emotional manipulation
-    emotional_words = ["help me", "new number", "i'm in trouble", "please assist"]
-    if any(word in text_lower for word in emotional_words):
+    # Emotional manipulation
+    if any(word in text_lower for word in ["help me", "new number", "i'm in trouble", "please assist"]):
         score += 2
         reasons.append("Uses emotional manipulation")
 
-    # 7. Payment request
-    payment_words = ["send money", "transfer", "pay now", "deposit"]
-    if any(word in text_lower for word in payment_words):
+    # Payment request
+    if any(word in text_lower for word in ["send money", "transfer", "pay now", "deposit"]):
         score += 3
         reasons.append("Requests payment")
 
-    # FINAL RISK LEVEL
+    # Final risk
     if score >= 7:
         risk = "HIGH"
     elif score >= 3:
@@ -71,6 +62,19 @@ def detect_scam(text):
 
     return risk, reasons
 
+# ---------------- SAVE SCANS ----------------
+def save_scan(text, risk, reasons):
+    with open("scans.csv", "a", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow([datetime.now(), text, risk, "; ".join(reasons)])
+
+# ---------------- SAVE FEEDBACK ----------------
+def save_feedback(text, feedback):
+    with open("feedback.csv", "a", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow([datetime.now(), text, feedback])
+
+# ---------------- ROUTES ----------------
 @app.route("/scan", methods=["POST"])
 def scan():
     data = request.json
@@ -78,15 +82,26 @@ def scan():
 
     risk, reasons = detect_scam(text)
 
+    save_scan(text, risk, reasons)
+
     return jsonify({
         "risk": risk,
         "reasons": reasons
     })
+
+@app.route("/feedback", methods=["POST"])
+def feedback():
+    data = request.json
+    text = data.get("text")
+    feedback = data.get("feedback")
+
+    save_feedback(text, feedback)
+
+    return jsonify({"status": "success"})
 
 @app.route("/")
 def home():
     return app.send_static_file("index.html")
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # use platform-provided port
-    app.run(debug=True, host="0.0.0.0", port=port)
+    app.run(debug=True)

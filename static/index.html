@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Scam Detector</title>
+    <title>Scam Detector</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: Arial;
             background: #f5f7fa;
-            margin: 0;
             padding: 20px;
             text-align: center;
         }
@@ -23,7 +22,7 @@
         }
 
         .container > * {
-             margin-bottom: 12px;
+            margin-bottom: 12px;
         }
 
         textarea {
@@ -32,58 +31,31 @@
             border-radius: 8px;
             border: 1px solid #ccc;
             resize: none;
-            font-size: 14px;
-            margin-bottom: 10px;
             box-sizing: border-box;
         }
 
         button {
-            margin-top: 10px;
             padding: 12px;
             width: 100%;
             border: none;
             border-radius: 8px;
             background: #007bff;
             color: white;
-            font-size: 16px;
             cursor: pointer;
-            display: block;
-        }
-
-        button:hover {
-            background: #0056b3;
         }
 
         .result-card {
-            margin-top: 20px;
+            display: none;
             padding: 15px;
             border-radius: 10px;
-            display: none;
-            transition: all 0.3s ease;
         }
 
-        .low { background: #e6ffed; color: #1b7a3d; }
-        .medium { background: #fff4e5; color: #b26a00; }
-        .high { background: #ffe5e5; color: #a10000; }
+        .low { background: #e6ffed; }
+        .medium { background: #fff4e5; }
+        .high { background: #ffe5e5; }
 
         #resultText {
-            font-size: 22px;
-            font-weight: bold;
-        }
-
-        ul {
-            text-align: left;
-            padding-left: 20px;
-        }
-
-        .loading {
-            margin-top: 10px;
-            font-size: 14px;
-            color: gray;
-        }
-
-        #advice {
-            margin-top: 10px;
+            font-size: 20px;
             font-weight: bold;
         }
     </style>
@@ -94,95 +66,103 @@
 <div class="container">
     <h2>Scam Detector</h2>
 
-    <textarea id="inputText" rows="5" placeholder="Paste message or link here..."></textarea>
+    <textarea id="inputText" rows="5" placeholder="Paste message here..."></textarea>
 
     <button id="scanBtn" onclick="scan()">Scan Message</button>
     <button onclick="loadExample()">Try Example</button>
 
-    <div id="loading" class="loading"></div>
+    <p id="loading"></p>
 
     <div id="resultCard" class="result-card">
         <h3 id="resultText"></h3>
         <p id="advice"></p>
         <ul id="reasons"></ul>
+
+        <div id="feedbackSection" style="display:none;">
+            <p>Was this accurate?</p>
+            <button onclick="sendFeedback('correct')">👍 Correct</button>
+            <button onclick="sendFeedback('wrong')">👎 Wrong</button>
+        </div>
     </div>
 </div>
 
 <script>
+let lastScannedText = "";
+
 async function scan() {
     const text = document.getElementById("inputText").value;
     const loading = document.getElementById("loading");
-    const resultCard = document.getElementById("resultCard");
     const button = document.getElementById("scanBtn");
-    const advice = document.getElementById("advice");
 
-    // 1. Input validation
     if (!text.trim()) {
         loading.innerText = "Please enter a message.";
         return;
     }
 
-    // 2. Disable button + loading state
+    lastScannedText = text;
+
     button.disabled = true;
     button.innerText = "Scanning...";
-    loading.innerText = "Analyzing message...";
-    resultCard.style.display = "none";
+    loading.innerText = "Analyzing...";
 
-    try {
-        const response = await fetch("/scan", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ text })
-        });
+    const response = await fetch("/scan", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ text })
+    });
 
-        const data = await response.json();
+    const data = await response.json();
 
-        loading.innerText = "";
-        button.disabled = false;
-        button.innerText = "Scan Message";
+    loading.innerText = "";
+    button.disabled = false;
+    button.innerText = "Scan Message";
 
-        resultCard.style.display = "block";
+    const resultCard = document.getElementById("resultCard");
+    resultCard.style.display = "block";
 
-        const resultText = document.getElementById("resultText");
+    const resultText = document.getElementById("resultText");
+    const advice = document.getElementById("advice");
 
-        // 3. Icons + risk display
-        if (data.risk === "HIGH") {
-            resultText.innerText = "🔴 HIGH RISK";
-            advice.innerText = "⚠️ Do NOT engage. This is likely a scam.";
-        }
-        else if (data.risk === "MEDIUM") {
-            resultText.innerText = "🟡 MEDIUM RISK";
-            advice.innerText = "⚠️ Be cautious. Verify before taking action.";
-        }
-        else {
-            resultText.innerText = "🟢 LOW RISK";
-            advice.innerText = "✅ This message appears safe.";
-        }
-
-        // 4. Apply color styling
-        resultCard.className = "result-card";
-        if (data.risk === "HIGH") resultCard.classList.add("high");
-        else if (data.risk === "MEDIUM") resultCard.classList.add("medium");
-        else resultCard.classList.add("low");
-
-        // 5. Display reasons
-        const reasonsList = document.getElementById("reasons");
-        reasonsList.innerHTML = "";
-
-        data.reasons.forEach(reason => {
-            const li = document.createElement("li");
-            li.innerText = reason;
-            reasonsList.appendChild(li);
-        });
-
-    } catch (error) {
-        loading.innerText = "Something went wrong. Try again.";
-        button.disabled = false;
-        button.innerText = "Scan Message";
+    if (data.risk === "HIGH") {
+        resultText.innerText = "🔴 HIGH RISK";
+        advice.innerText = "Do NOT engage.";
+        resultCard.className = "result-card high";
+    } else if (data.risk === "MEDIUM") {
+        resultText.innerText = "🟡 MEDIUM RISK";
+        advice.innerText = "Be cautious.";
+        resultCard.className = "result-card medium";
+    } else {
+        resultText.innerText = "🟢 LOW RISK";
+        advice.innerText = "Looks safe.";
+        resultCard.className = "result-card low";
     }
+
+    const reasonsList = document.getElementById("reasons");
+    reasonsList.innerHTML = "";
+
+    data.reasons.forEach(reason => {
+        let li = document.createElement("li");
+        li.innerText = reason;
+        reasonsList.appendChild(li);
+    });
+
+    document.getElementById("feedbackSection").style.display = "block";
 }
 
-// 6. Example button
+async function sendFeedback(type) {
+    await fetch("/feedback", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            text: lastScannedText,
+            feedback: type
+        })
+    });
+
+    document.getElementById("feedbackSection").innerHTML =
+        "✅ Thanks for your feedback!";
+}
+
 function loadExample() {
     document.getElementById("inputText").value =
     "URGENT: Your bank account has been blocked. Click http://fakebank.com and enter your OTP.";
