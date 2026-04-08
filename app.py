@@ -23,7 +23,7 @@ def detect_scam(text):
         reasons.append("Uses urgent or threatening language")
 
     # Links
-    has_link = bool(re.search(r"http[s]?://", text_lower))
+    has_link = bool(re.search(r"https?://", text_lower))
     if has_link:
         score += 2
         reasons.append("Contains a link")
@@ -141,25 +141,34 @@ def save_feedback(text, feedback):
 # ---------------- ROUTES ----------------
 @app.route("/scan", methods=["POST"])
 def scan():
+    if not request.is_json:
+        return jsonify({"error": "Invalid JSON"}), 400
+
     data = request.json
     text = data.get("text", "")
+    if not text:
+        return jsonify({"error": "Text cannot be empty"}), 400
 
     risk, reasons = detect_scam(text)
-
     save_scan(text, risk, reasons)
 
-    return jsonify({
-        "risk": risk,
-        "reasons": reasons
-    })
+    return jsonify({"risk": risk, "reasons": reasons})
 
 @app.route("/feedback", methods=["POST"])
 def feedback():
-    data = request.json
-    text = data.get("text")
-    feedback = data.get("feedback")
+    if not request.is_json:
+        return jsonify({"error": "Invalid JSON"}), 400
 
-    save_feedback(text, feedback)
+    data = request.json
+    text = data.get("text", "")
+    feedback_text = data.get("feedback", "")
+
+    if not text:
+        return jsonify({"error": "Text cannot be empty"}), 400
+    if not feedback_text:
+        return jsonify({"error": "Feedback cannot be empty"}), 400
+
+    save_feedback(text, feedback_text)
 
     return jsonify({"status": "success"})
 
