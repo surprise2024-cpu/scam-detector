@@ -13,13 +13,16 @@ def detect_scam(text):
     score = 0
     reasons = []
 
+    # ---------------- BASIC RULES ----------------
+
     # Urgency
     if any(word in text_lower for word in ["urgent", "immediately", "act now", "final notice", "account blocked"]):
         score += 2
         reasons.append("Uses urgent or threatening language")
 
     # Links
-    if re.search(r"http[s]?://", text_lower):
+    has_link = bool(re.search(r"http[s]?://", text_lower))
+    if has_link:
         score += 2
         reasons.append("Contains a link")
 
@@ -37,25 +40,66 @@ def detect_scam(text):
         score += 2
         reasons.append("Promises money or rewards")
 
-    # Impersonation
-    if any(word in text_lower for word in ["fnb", "standard bank", "paypal", "dhl", "sars"]):
-        score += 2
-        reasons.append("Pretends to be a trusted organization")
-
-    # Emotional manipulation
-    if any(word in text_lower for word in ["help me", "new number", "i'm in trouble", "please assist"]):
-        score += 2
-        reasons.append("Uses emotional manipulation")
-
     # Payment request
     if any(word in text_lower for word in ["send money", "transfer", "pay now", "deposit"]):
         score += 3
         reasons.append("Requests payment")
 
-    # Final risk
-    if score >= 7:
+    # ---------------- EMAIL-SPECIFIC RULES ----------------
+
+    # Generic greeting
+    if any(word in text_lower for word in ["dear customer", "dear user", "valued customer"]):
+        score += 2
+        reasons.append("Uses generic greeting (common in phishing emails)")
+
+    # Account/security language
+    if any(word in text_lower for word in [
+        "verify your account",
+        "unusual activity",
+        "suspended account",
+        "account limited",
+        "security alert"
+    ]):
+        score += 2
+        reasons.append("Mentions account security issue")
+
+    # Call-to-action pressure
+    if any(word in text_lower for word in [
+        "click below",
+        "login now",
+        "confirm immediately",
+        "update your details"
+    ]):
+        score += 2
+        reasons.append("Pushes immediate action")
+
+    # Fake sender cues
+    if any(word in text_lower for word in [
+        "support team",
+        "no-reply",
+        "customer service",
+        "security team"
+    ]):
+        score += 1
+        reasons.append("Uses generic sender identity")
+
+    # ---------------- COMBINATION LOGIC (VERY IMPORTANT) ----------------
+
+    # Link + urgency = strong phishing signal
+    if has_link and any(word in text_lower for word in ["urgent", "immediately", "verify"]):
+        score += 2
+        reasons.append("Combines urgency with a link")
+
+    # Link + impersonation
+    if has_link and any(word in text_lower for word in ["paypal", "bank", "dhl", "sars"]):
+        score += 2
+        reasons.append("Link combined with trusted brand impersonation")
+
+    # ---------------- FINAL DECISION ----------------
+
+    if score >= 8:
         risk = "HIGH"
-    elif score >= 3:
+    elif score >= 4:
         risk = "MEDIUM"
     else:
         risk = "LOW"
