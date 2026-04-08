@@ -83,6 +83,24 @@ def detect_scam(text):
         score += 1
         reasons.append("Uses generic sender identity")
 
+    if any(word in text_lower for word in [
+        "inheritance", "beneficiary", "next of kin", "fund release", "unclaimed funds"
+    ]):
+        score += 4
+        reasons.append("Mentions inheritance or unexpected funds")
+
+    if re.search(r"[\w\.-]+@[\w\.-]+\.\w+", text):
+        score += 3
+        reasons.append("Asks you to contact via email (common scam tactic)")
+
+    if any(word in text_lower for word in [
+        "further info", "more details", "contact for details", "get more information"
+    ]):
+        score += 2
+        reasons.append("Uses vague instructions instead of clear details")
+
+
+
     # ---------------- COMBINATION LOGIC (VERY IMPORTANT) ----------------
 
     # Link + urgency = strong phishing signal
