@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="">
 <head>
     <title>Scam Detector</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
-            font-family: Arial;
+            font-family: Arial,serif;
             background: #f5f7fa;
             padding: 20px;
             text-align: center;
@@ -66,7 +66,7 @@
 <div class="container">
     <h2>Scam Detector</h2>
 
-    <textarea id="inputText" rows="5" placeholder="Paste message here..."></textarea>
+    <label for="inputText"></label><textarea id="inputText" rows="5" placeholder="Paste message here..."></textarea>
 
     <button id="scanBtn" onclick="scan()">Scan Message</button>
     <button onclick="loadExample()">Try Example</button>
@@ -127,11 +127,13 @@ async function scan() {
         resultText.innerText = "🔴 HIGH RISK";
         advice.innerText = "Do NOT engage.";
         resultCard.className = "result-card high";
-    } else if (data.risk === "MEDIUM") {
+    }
+    else if (data.risk === "MEDIUM") {
         resultText.innerText = "🟡 MEDIUM RISK";
         advice.innerText = "Be cautious.";
         resultCard.className = "result-card medium";
-    } else {
+    }
+    else {
         resultText.innerText = "🟢 LOW RISK";
         advice.innerText = "Looks safe.";
         resultCard.className = "result-card low";
@@ -165,7 +167,7 @@ async function sendFeedback(type) {
 
 function loadExample() {
     document.getElementById("inputText").value =
-    "URGENT: Your bank account has been blocked. Click http://fakebank.com and enter your OTP.";
+    "URGENT: Your bank account has been blocked. Click https://fakebank.com and enter your OTP.";
 }
 </script>
 
