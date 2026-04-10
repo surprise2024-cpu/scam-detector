@@ -15,13 +15,15 @@ def detect_scam(text):
 
     # ---------------- BASIC RULES ----------------
 
+    # ---------------- LINK + MARKETING COMBO (VERY IMPORTANT) ----------------
+
     # Urgency
     if any(word in text_lower for word in ["urgent", "immediately", "act now", "final notice", "account blocked"]):
         score += 2
         reasons.append("Uses urgent or threatening language")
 
     # Links
-    has_link = bool(re.search(r"http[s]?://", text_lower))
+    has_link = bool(re.search(r"https?://", text_lower))
     if has_link:
         score += 2
         reasons.append("Contains a link")
@@ -29,6 +31,16 @@ def detect_scam(text):
         if any(domain in text_lower for domain in [".xyz", ".top", "bit.ly", "tinyurl"]):
             score += 2
             reasons.append("Uses suspicious or shortened link")
+
+    if has_link and any(word in text_lower for word in [
+        "shop now", "buy now", "claim now", "click here", "limited offer"
+    ]):
+        score += 4
+        reasons.append("Combines link with marketing pressure (high-risk pattern)")
+
+    if "shop now" in text_lower:
+        score += 2
+        reasons.append("Encourages immediate purchase action")
 
     # Sensitive info
     if any(word in text_lower for word in ["otp", "password", "pin", "bank details", "cvv"]):
@@ -93,11 +105,11 @@ def detect_scam(text):
     # Reply YES trap
     if "reply yes" in text_lower:
         score += 3
-        reasons.append("ضغط user to reply YES (common scam tactic)")
+        reasons.append("User to reply YES (common scam tactic)")
 
     # Opt-out pattern
     if any(word in text_lower for word in ["optout", "opt out", "no=out", "stop"]):
-        score += 2
+        score += 3
         reasons.append("Mass messaging / bulk SMS pattern")
 
     # Unsolicited offer
