@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="">
+<html>
 <head>
-    <title>Scam Detector</title>
+    <title>AI Scam Detector</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
             font-family: Arial,serif;
-            background: #f5f7fa;
-            padding: 20px;
+            background: #f4f4f4;
             text-align: center;
+            margin: 0;
+            padding: 20px;
         }
 
         .container {
@@ -35,13 +36,14 @@
         }
 
         button {
-            padding: 12px;
-            width: 100%;
+            padding: 10px 15px;
+            margin: 10px 5px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             background: #007bff;
             color: white;
             cursor: pointer;
+            font-size: 14px;
         }
 
         .result-card {
@@ -58,6 +60,37 @@
             font-size: 20px;
             font-weight: bold;
         }
+
+        .scan-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .example-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .clear-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .reasons {
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .loading {
+            margin-top: 10px;
+            font-style: italic;
+            color: gray;
+        }
     </style>
 </head>
 
@@ -66,28 +99,31 @@
 <div class="container">
     <h2>Scam Detector</h2>
 
-    <label for="inputText"></label><textarea id="inputText" rows="5" placeholder="Paste message here..."></textarea>
+    <label for="inputText"></label><textarea id="inputText" rows="6" placeholder="Paste message here..."></textarea>
 
-    <button id="scanBtn" onclick="scan()">Scan Message</button>
-    <button onclick="loadExample()">Try Example</button>
+    <br>
 
-    <p id="loading"></p>
+    <button id="scanBtn" class="scan-btn" onclick="scan()">Scan</button>
+    <button class="example-btn" onclick="tryExample()">Try Example</button>
+    <button class="clear-btn" onclick="clearText()">Clear</button>
 
-    <div id="resultCard" class="result-card">
+    <div class="loading" id="loading"></div>
+
+   <div id="resultCard" class="result-card">
         <h3 id="resultText"></h3>
         <p id="advice"></p>
-        <ul id="reasons"></ul>
+        <ul class="reasons" id="reasons"></ul>
 
         <div id="feedbackSection" style="display:none;">
             <p>Was this accurate?</p>
             <button onclick="sendFeedback('correct')">👍 Correct</button>
             <button onclick="sendFeedback('wrong')">👎 Wrong</button>
         </div>
-    </div>
+</div>
 </div>
 
 <script>
-let lastScannedText = "";
+    let lastScannedText = "";
 
 async function scan() {
     const text = document.getElementById("inputText").value;
@@ -101,56 +137,69 @@ async function scan() {
 
     lastScannedText = text;
 
+    loading.innerText = "Analyzing...";
     button.disabled = true;
     button.innerText = "Scanning...";
-    loading.innerText = "Analyzing...";
 
-    const response = await fetch("/scan", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ text })
-    });
+    try {
+        const response = await fetch("/scan", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ text })
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    loading.innerText = "";
-    button.disabled = false;
-    button.innerText = "Scan Message";
+        loading.innerText = "";
+        button.disabled = false;
+        button.innerText = "Scan";
 
-    const resultCard = document.getElementById("resultCard");
-    resultCard.style.display = "block";
+        const resultCard = document.getElementById("resultCard");
+        resultCard.style.display = "block";
 
-    const resultText = document.getElementById("resultText");
-    const advice = document.getElementById("advice");
+        const resultText = document.getElementById("resultText");
+        const advice = document.getElementById("advice");
 
-    if (data.risk === "HIGH") {
-        resultText.innerText = "🔴 HIGH RISK";
-        advice.innerText = "Do NOT engage.";
-        resultCard.className = "result-card high";
+        if (data.risk === "HIGH") {
+            resultText.innerText = `🔴 HIGH RISK (${data.confidence}%)`;
+            advice.innerText = "Do NOT engage.";
+            resultCard.className = "result-card high";
+        }
+        else if (data.risk === "MEDIUM") {
+            resultText.innerText = `🟡 MEDIUM RISK (${data.confidence}%)`;
+            advice.innerText = "Be cautious.";
+            resultCard.className = "result-card medium";
+        }
+        else {
+            resultText.innerText = `🟢 LOW RISK (${data.confidence}%)`;
+            advice.innerText = "Looks safe.";
+            resultCard.className = "result-card low";
+        }
+
+        let reasonsList = document.getElementById("reasons");
+        reasonsList.innerHTML = "";
+
+        data.reasons.forEach(reason => {
+            let li = document.createElement("li");
+            li.innerText = reason;
+            reasonsList.appendChild(li);
+        });
+
+        document.getElementById("feedbackSection").style.display = "block";
+
+    } catch (error) {
+        loading.innerText = "Error scanning. Try again.";
+        button.disabled = false;
+        button.innerText = "Scan";
     }
-    else if (data.risk === "MEDIUM") {
-        resultText.innerText = "🟡 MEDIUM RISK";
-        advice.innerText = "Be cautious.";
-        resultCard.className = "result-card medium";
-    }
-    else {
-        resultText.innerText = "🟢 LOW RISK";
-        advice.innerText = "Looks safe.";
-        resultCard.className = "result-card low";
-    }
-
-    const reasonsList = document.getElementById("reasons");
-    reasonsList.innerHTML = "";
-
-    data.reasons.forEach(reason => {
-        let li = document.createElement("li");
-        li.innerText = reason;
-        reasonsList.appendChild(li);
-    });
-
-    document.getElementById("feedbackSection").style.display = "block";
 }
 
+// CLEAR FUNCTION
+function clearText() {
+    document.getElementById("inputText").value = "";
+    document.getElementById("loading").innerText = "";
+    document.getElementById("resultCard").style.display = "none";
+}
 async function sendFeedback(type) {
     await fetch("/feedback", {
         method: "POST",
@@ -165,9 +214,26 @@ async function sendFeedback(type) {
         "✅ Thanks for your feedback!";
 }
 
-function loadExample() {
-    document.getElementById("inputText").value =
-    "URGENT: Your bank account has been blocked. Click https://fakebank.com and enter your OTP.";
+// TRY EXAMPLE FUNCTION (random examples)
+function tryExample() {
+    const examples = [
+        "URGENT: Your bank account has been suspended. Click here to verify immediately: http://secure-login.xyz",
+        "Congratulations! You’ve won R5000. Claim now: http://bit.ly/win-cash",
+        "Dear customer, your account is limited. Verify immediately.",
+        "ABSA: Your account has unusual activity. Login now to secure it: http://absa-secure.xyz",
+        "You have a pending parcel. Pay delivery fee now: http://track-package.top"
+    ];
+
+    const random = examples[Math.floor(Math.random() * examples.length)];
+
+    document.getElementById("inputText").value = random;
+
+// Show loading message first
+document.getElementById("loading").innerText = "Loading example...";
+
+// Add slight delay before scanning
+setTimeout(() => {
+    scan(); }, 400);
 }
 </script>
 
