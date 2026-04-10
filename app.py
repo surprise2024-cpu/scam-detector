@@ -17,6 +17,39 @@ def detect_scam(text):
 
     # ---------------- BASIC RULES ----------------
 
+    # ---------------- SMS / MARKETING SCAM PATTERNS ----------------
+
+    # Known financial brands (South Africa context)
+    if any(word in text_lower for word in ["absa", "fnb", "standard bank", "nedbank", "capitec"]):
+        score += 1
+        reasons.append("Mentions financial institution")
+
+    # Opt-in SMS pattern (common in scams & spam)
+    if re.search(r"\byes\b.*\bconfirm\b", text_lower) or "reply yes" in text_lower:
+        score += 2
+        reasons.append("Requests reply to confirm (common in SMS scams)")
+
+    # Unsolicited contact offer
+    if any(word in text_lower for word in [
+        "we would like to call",
+        "we will contact you",
+        "discuss your",
+        "offer you",
+        "insurance options"
+    ]):
+        score += 2
+        reasons.append("Unsolicited offer or contact attempt")
+
+    # Shortcode / opt-out pattern
+    if any(word in text_lower for word in ["stop", "no=out", "opt out"]):
+        score += 1
+        reasons.append("Contains opt-out instruction (mass messaging indicator)")
+
+    # Too clean + no personalization
+    if "your" in text_lower and not any(name in text_lower for name in ["mr", "mrs", "dorcas"]):
+        score += 1
+        reasons.append("Generic message without personalization")
+
     # Urgency
     if any(word in text_lower for word in ["urgent", "immediately", "act now", "final notice", "account blocked"]):
         score += 2
@@ -117,10 +150,12 @@ def detect_scam(text):
 
     # ---------------- FINAL DECISION ----------------
 
-    if score >= 8:
+    if score >= 9:
         risk = "HIGH"
-    elif score >= 4:
+    elif score >= 5:
         risk = "MEDIUM"
+    elif score >= 2:
+        risk = "LOW-MEDIUM"
     else:
         risk = "LOW"
 
