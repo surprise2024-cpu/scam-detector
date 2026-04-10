@@ -1,5 +1,3 @@
-import os
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import re
@@ -17,46 +15,13 @@ def detect_scam(text):
 
     # ---------------- BASIC RULES ----------------
 
-    # ---------------- SMS / MARKETING SCAM PATTERNS ----------------
-
-    # Known financial brands (South Africa context)
-    if any(word in text_lower for word in ["absa", "fnb", "standard bank", "nedbank", "capitec"]):
-        score += 1
-        reasons.append("Mentions financial institution")
-
-    # Opt-in SMS pattern (common in scams & spam)
-    if re.search(r"\byes\b.*\bconfirm\b", text_lower) or "reply yes" in text_lower:
-        score += 2
-        reasons.append("Requests reply to confirm (common in SMS scams)")
-
-    # Unsolicited contact offer
-    if any(word in text_lower for word in [
-        "we would like to call",
-        "we will contact you",
-        "discuss your",
-        "offer you",
-        "insurance options"
-    ]):
-        score += 2
-        reasons.append("Unsolicited offer or contact attempt")
-
-    # Shortcode / opt-out pattern
-    if any(word in text_lower for word in ["stop", "no=out", "opt out"]):
-        score += 1
-        reasons.append("Contains opt-out instruction (mass messaging indicator)")
-
-    # Too clean + no personalization
-    if "your" in text_lower and not any(name in text_lower for name in ["mr", "mrs", "dorcas"]):
-        score += 1
-        reasons.append("Generic message without personalization")
-
     # Urgency
     if any(word in text_lower for word in ["urgent", "immediately", "act now", "final notice", "account blocked"]):
         score += 2
         reasons.append("Uses urgent or threatening language")
 
     # Links
-    has_link = bool(re.search(r"https?://", text_lower))
+    has_link = bool(re.search(r"http[s]?://", text_lower))
     if has_link:
         score += 2
         reasons.append("Contains a link")
@@ -80,43 +45,24 @@ def detect_scam(text):
         score += 3
         reasons.append("Requests payment")
 
-    # ---------------- EMAIL-SPECIFIC RULES ----------------
+    # ---------------- EMAIL SCAM PATTERNS ----------------
 
-    # Generic greeting
     if any(word in text_lower for word in ["dear customer", "dear user", "valued customer"]):
         score += 2
-        reasons.append("Uses generic greeting (common in phishing emails)")
+        reasons.append("Generic greeting (phishing style)")
 
-    # Account/security language
     if any(word in text_lower for word in [
-        "verify your account",
-        "unusual activity",
-        "suspended account",
-        "account limited",
-        "security alert"
+        "verify your account", "unusual activity", "suspended account",
+        "account limited", "security alert"
     ]):
         score += 2
         reasons.append("Mentions account security issue")
 
-    # Call-to-action pressure
     if any(word in text_lower for word in [
-        "click below",
-        "login now",
-        "confirm immediately",
-        "update your details"
+        "click below", "login now", "confirm immediately", "update your details"
     ]):
         score += 2
         reasons.append("Pushes immediate action")
-
-    # Fake sender cues
-    if any(word in text_lower for word in [
-        "support team",
-        "no-reply",
-        "customer service",
-        "security team"
-    ]):
-        score += 1
-        reasons.append("Uses generic sender identity")
 
     if any(word in text_lower for word in [
         "inheritance", "beneficiary", "next of kin", "fund release", "unclaimed funds"
@@ -126,46 +72,96 @@ def detect_scam(text):
 
     if re.search(r"[\w\.-]+@[\w\.-]+\.\w+", text):
         score += 3
-        reasons.append("Asks you to contact via email (common scam tactic)")
+        reasons.append("Contains email contact (common scam tactic)")
 
     if any(word in text_lower for word in [
-        "further info", "more details", "contact for details", "get more information"
+        "further info", "more details", "contact for details"
     ]):
         score += 2
-        reasons.append("Uses vague instructions instead of clear details")
+        reasons.append("Uses vague instructions")
 
+    # ---------------- SMS / SPAM PATTERNS ----------------
 
+    # Financial / insurance brands
+    if any(word in text_lower for word in [
+        "absa", "fnb", "standard bank", "nedbank", "capitec",
+        "miway", "outsurance", "dialdirect", "king price"
+    ]):
+        score += 2
+        reasons.append("Mentions financial/insurance brand (can be impersonated)")
 
-    # ---------------- COMBINATION LOGIC (VERY IMPORTANT) ----------------
+    # Reply YES trap
+    if "reply yes" in text_lower:
+        score += 3
+        reasons.append("ضغط user to reply YES (common scam tactic)")
 
-    # Link + urgency = strong phishing signal
-    if has_link and any(word in text_lower for word in ["urgent", "immediately", "verify"]):
+    # Opt-out pattern
+    if any(word in text_lower for word in ["optout", "opt out", "no=out", "stop"]):
+        score += 2
+        reasons.append("Mass messaging / bulk SMS pattern")
+
+    # Unsolicited offer
+    if any(word in text_lower for word in [
+        "we would like to call", "discuss your", "offer you", "insurance options"
+    ]):
+        score += 2
+        reasons.append("Unsolicited contact or offer")
+
+    # Promotional language
+    if any(word in text_lower for word in ["save", "low premium", "deal", "offer"]):
+        score += 1
+        reasons.append("Promotional persuasion language")
+
+    # Price bait
+    if re.search(r"r\d+\s*(per day|/day)", text_lower):
+        score += 2
+        reasons.append("Uses attractive pricing bait")
+
+    # Fake personalization
+    if re.match(r"^[a-z]+,", text_lower):
+        score += 2
+        reasons.append("Fake personalization (name-based spam)")
+
+    # ---------------- COMBINATION LOGIC ----------------
+
+    if has_link and "urgent" in text_lower:
         score += 2
         reasons.append("Combines urgency with a link")
 
-    # Link + impersonation
-    if has_link and any(word in text_lower for word in ["paypal", "bank", "dhl", "sars"]):
-        score += 2
-        reasons.append("Link combined with trusted brand impersonation")
+    # ---------------- FINAL CLASSIFICATION ----------------
 
-    # ---------------- FINAL DECISION ----------------
+    # Label
+    if score >= 10:
+        label = "SCAM"
+    elif score >= 6:
+        label = "SPAM"
+    elif score >= 3:
+        label = "SUSPICIOUS"
+    else:
+        label = "SAFE"
 
-    if score >= 9:
+    # Confidence
+    confidence = min(score * 10, 100)
+
+    # Risk
+    if confidence >= 81:
         risk = "HIGH"
-    elif score >= 5:
+    elif confidence >= 61:
         risk = "MEDIUM"
-    elif score >= 2:
+    elif confidence >= 31:
         risk = "LOW-MEDIUM"
     else:
         risk = "LOW"
 
-    return risk, reasons
+    return label, confidence, risk, reasons
+
 
 # ---------------- SAVE SCANS ----------------
-def save_scan(text, risk, reasons):
+def save_scan(text, label, confidence, risk, reasons):
     with open("scans.csv", "a", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow([datetime.now(), text, risk, "; ".join(reasons)])
+        writer.writerow([datetime.now(), text, label, confidence, risk, "; ".join(reasons)])
+
 
 # ---------------- SAVE FEEDBACK ----------------
 def save_feedback(text, feedback):
@@ -173,43 +169,40 @@ def save_feedback(text, feedback):
         writer = csv.writer(file)
         writer.writerow([datetime.now(), text, feedback])
 
+
 # ---------------- ROUTES ----------------
 @app.route("/scan", methods=["POST"])
 def scan():
-    if not request.is_json:
-        return jsonify({"error": "Invalid JSON"}), 400
-
     data = request.json
     text = data.get("text", "")
-    if not text:
-        return jsonify({"error": "Text cannot be empty"}), 400
 
-    risk, reasons = detect_scam(text)
-    save_scan(text, risk, reasons)
+    label, confidence, risk, reasons = detect_scam(text)
 
-    return jsonify({"risk": risk, "reasons": reasons})
+    save_scan(text, label, confidence, risk, reasons)
+
+    return jsonify({
+        "label": label,
+        "confidence": confidence,
+        "risk": risk,
+        "reasons": reasons
+    })
+
 
 @app.route("/feedback", methods=["POST"])
 def feedback():
-    if not request.is_json:
-        return jsonify({"error": "Invalid JSON"}), 400
-
     data = request.json
-    text = data.get("text", "")
-    feedback_text = data.get("feedback", "")
+    text = data.get("text")
+    feedback = data.get("feedback")
 
-    if not text:
-        return jsonify({"error": "Text cannot be empty"}), 400
-    if not feedback_text:
-        return jsonify({"error": "Feedback cannot be empty"}), 400
-
-    save_feedback(text, feedback_text)
+    save_feedback(text, feedback)
 
     return jsonify({"status": "success"})
+
 
 @app.route("/")
 def home():
     return app.send_static_file("index.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
