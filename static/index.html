@@ -9,7 +9,6 @@
             font-family: Arial, sans-serif;
             background: #eef2f7;
             margin: 0;
-            padding: 0;
         }
 
         .app {
@@ -18,11 +17,8 @@
             padding: 20px;
         }
 
-        h2 {
-            text-align: center;
-        }
+        h2 { text-align: center; }
 
-        /* Tabs */
         .tabs {
             display: flex;
             margin-bottom: 15px;
@@ -44,7 +40,6 @@
             color: white;
         }
 
-        /* Card */
         .card {
             background: white;
             padding: 15px;
@@ -62,12 +57,23 @@
             resize: none;
         }
 
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
         button {
-            padding: 10px;
+            padding: 10px 15px;
+            margin: 10px 5px;
             border: none;
             border-radius: 8px;
-            margin: 5px 2px;
+            background: #007bff;
+            color: white;
             cursor: pointer;
+            font-size: 14px;
         }
 
         .scan-btn { background: #4CAF50; color: white; }
@@ -98,24 +104,19 @@
             font-size: 13px;
             margin-bottom: 10px;
             text-align: left;
-            border-left: 4px solid #ffc107
+            border-left: 4px solid #ffc107;
         }
 
-        ul {
-            padding-left: 18px;
+        #feedbackSection button {
+            background: #eee;
+            color: black;
         }
 
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 10px;
+        #feedbackSection button:hover {
+            background: #ddd;
         }
 
-        .button-group button {
-            min-width: 90px;
-        }
+        ul { padding-left: 18px; }
     </style>
 </head>
 
@@ -128,10 +129,9 @@
         This tool provides risk analysis, not guarantees. Always verify important messages.
     </div>
 
-    <!-- Tabs -->
     <div class="tabs">
-        <button class="tab active" onclick="showTab('scan')">Scan</button>
-        <button class="tab" onclick="showTab('learn')">Learn</button>
+        <button class="tab active" onclick="showTab('scan', this)">Scan</button>
+        <button class="tab" onclick="showTab('learn', this)">Learn</button>
     </div>
 
     <!-- SCAN TAB -->
@@ -145,6 +145,7 @@
                 <button class="example-btn" onclick="tryExample()">Try Example</button>
                 <button class="clear-btn" onclick="clearText()">Clear</button>
             </div>
+
             <div id="loading" class="loading"></div>
         </div>
 
@@ -152,6 +153,8 @@
             <h3 id="resultText"></h3>
             <p id="advice"></p>
             <ul id="reasons"></ul>
+
+            <div id="feedbackSection" style="display:none; margin-top:10px;"></div>
         </div>
 
     </div>
@@ -172,10 +175,10 @@
         <div class="card">
             <h3>Common Scam Types</h3>
             <ul>
-                <li>Bank account alerts</li>
-                <li>Fake delivery messages</li>
-                <li>Lottery or prize scams</li>
-                <li>Job offers that ask for money</li>
+                <li>Bank alerts</li>
+                <li>Fake deliveries</li>
+                <li>Lottery scams</li>
+                <li>Job scams</li>
             </ul>
         </div>
 
@@ -183,9 +186,9 @@
             <h3>Safety Tips</h3>
             <ul>
                 <li>Never share OTP or PIN</li>
-                <li>Verify links before clicking</li>
-                <li>Call official numbers, not message numbers</li>
-                <li>When unsure, don't act immediately</li>
+                <li>Verify links</li>
+                <li>Call official numbers</li>
+                <li>Don't act under pressure</li>
             </ul>
         </div>
 
@@ -197,13 +200,12 @@
 let lastScannedText = "";
 
 // TAB SWITCH
-function showTab(tab) {
+function showTab(tab, el) {
     document.getElementById("scanTab").style.display = tab === 'scan' ? "block" : "none";
     document.getElementById("learnTab").style.display = tab === 'learn' ? "block" : "none";
 
-    let tabs = document.querySelectorAll(".tab");
-    tabs.forEach(t => t.classList.remove("active"));
-    event.target.classList.add("active");
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    el.classList.add("active");
 }
 
 // SCAN
@@ -230,6 +232,10 @@ async function scan() {
 
         const data = await res.json();
 
+        if (!data || !data.risk) {
+            throw new Error("Invalid response");
+        }
+
         loading.innerText = "";
         button.disabled = false;
 
@@ -240,26 +246,44 @@ async function scan() {
         let advice = document.getElementById("advice");
 
         if (data.risk === "HIGH") {
-            textEl.innerText = "🔴 HIGH RISK";
+            textEl.innerText = `🔴 HIGH RISK (${data.confidence}%)`;
             advice.innerText = "Do NOT engage.";
             card.className = "result-card high";
         } else if (data.risk === "MEDIUM") {
-            textEl.innerText = "🟡 MEDIUM RISK";
+            textEl.innerText = `🟡 MEDIUM RISK (${data.confidence}%)`;
             advice.innerText = "Be cautious.";
             card.className = "result-card medium";
         } else {
-            textEl.innerText = "🟢 LOW RISK";
+            textEl.innerText = `🟢 LOW RISK (${data.confidence}%)`;
             advice.innerText = "Looks safe.";
             card.className = "result-card low";
         }
 
         let list = document.getElementById("reasons");
         list.innerHTML = "";
-        data.reasons.forEach(r => {
+
+        if (data.reasons.length === 0) {
             let li = document.createElement("li");
-            li.innerText = r;
+            li.innerText = "No specific risk indicators detected.";
             list.appendChild(li);
-        });
+        } else {
+            data.reasons.forEach(r => {
+                let li = document.createElement("li");
+                li.innerText = r;
+                list.appendChild(li);
+            });
+        }
+
+        // RESET + SHOW FEEDBACK
+        document.getElementById("feedbackSection").innerHTML = `
+            <p>Was this accurate?</p>
+            <button onclick="sendFeedback('correct')">👍 Correct</button>
+            <button onclick="sendFeedback('wrong')">👎 Wrong</button>
+        `;
+        document.getElementById("feedbackSection").style.display = "block";
+
+        // AUTO SCROLL
+        card.scrollIntoView({ behavior: "smooth" });
 
     } catch {
         loading.innerText = "Error scanning.";
@@ -272,6 +296,21 @@ function clearText() {
     document.getElementById("inputText").value = "";
     document.getElementById("resultCard").style.display = "none";
     document.getElementById("loading").innerText = "";
+}
+
+// FEEDBACK
+async function sendFeedback(type) {
+    await fetch("/feedback", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            text: lastScannedText,
+            feedback: type
+        })
+    });
+
+    document.getElementById("feedbackSection").innerHTML =
+        "Thanks for your feedback!";
 }
 
 // EXAMPLE
