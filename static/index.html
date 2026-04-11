@@ -1,29 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Scam Detector</title>
+    <title>AI Scam Detector</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
-            font-family: Arial,serif;
-            background: #f4f4f4;
-            text-align: center;
+            font-family: Arial, sans-serif;
+            background: #eef2f7;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
 
-        .container {
-            max-width: 400px;
+        .app {
+            max-width: 420px;
             margin: auto;
-            background: white;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .container > * {
-            margin-bottom: 12px;
+        h2 {
+            text-align: center;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            cursor: pointer;
+            border: none;
+            background: #ddd;
+        }
+
+        .tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
         }
 
         textarea {
@@ -31,223 +58,235 @@
             padding: 12px;
             border-radius: 8px;
             border: 1px solid #ccc;
-            resize: none;
             box-sizing: border-box;
+            resize: none;
         }
 
         button {
-            padding: 10px 15px;
-            margin: 10px 5px;
+            padding: 10px;
             border: none;
-            border-radius: 6px;
-            background: #007bff;
-            color: white;
+            border-radius: 8px;
+            margin: 5px 2px;
             cursor: pointer;
-            font-size: 14px;
         }
+
+        .scan-btn { background: #4CAF50; color: white; }
+        .example-btn { background: #2196F3; color: white; }
+        .clear-btn { background: #f44336; color: white; }
 
         .result-card {
             display: none;
             padding: 15px;
             border-radius: 10px;
+            margin-top: 10px;
         }
 
         .low { background: #e6ffed; }
         .medium { background: #fff4e5; }
         .high { background: #ffe5e5; }
 
-        #resultText {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .scan-btn {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .example-btn {
-            background: #2196F3;
-            color: white;
-        }
-
-        .clear-btn {
-            background: #f44336;
-            color: white;
-        }
-
-        .result {
-            margin-top: 20px;
-            font-size: 18px;
-        }
-
-        .reasons {
-            text-align: left;
-            margin-top: 10px;
-        }
-
         .loading {
-            margin-top: 10px;
-            font-style: italic;
+            text-align: center;
             color: gray;
         }
 
         .disclaimer {
             background: #fff3cd;
             color: #856404;
-            padding: 12px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
             font-size: 13px;
+            margin-bottom: 10px;
             text-align: left;
-            border-left: 4px solid #ffc107;
+            border-left: 4px solid #ffc107
+        }
+
+        ul {
+            padding-left: 18px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .button-group button {
+            min-width: 90px;
         }
     </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="app">
     <h2>Scam Detector</h2>
 
     <div class="disclaimer">
-        This tool provides risk analysis, not guarantees. Always verify important messages independently.
+        This tool provides risk analysis, not guarantees. Always verify important messages.
     </div>
 
-    <label for="inputText"></label><textarea id="inputText" rows="6" placeholder="Paste message here..."></textarea>
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('scan')">Scan</button>
+        <button class="tab" onclick="showTab('learn')">Learn</button>
+    </div>
 
-    <br>
+    <!-- SCAN TAB -->
+    <div id="scanTab">
 
-    <button id="scanBtn" class="scan-btn" onclick="scan()">Scan</button>
-    <button class="example-btn" onclick="tryExample()">Try Example</button>
-    <button class="clear-btn" onclick="clearText()">Clear</button>
+        <div class="card">
+            <textarea id="inputText" rows="5" placeholder="Paste message here..."></textarea>
 
-    <div class="loading" id="loading"></div>
-
-   <div id="resultCard" class="result-card">
-        <h3 id="resultText"></h3>
-        <p id="advice"></p>
-        <ul class="reasons" id="reasons"></ul>
-
-        <div id="feedbackSection" style="display:none;">
-            <p>Was this accurate?</p>
-            <button onclick="sendFeedback('correct')">👍 Correct</button>
-            <button onclick="sendFeedback('wrong')">👎 Wrong</button>
+            <div class="button-group">
+                <button id="scanBtn" class="scan-btn" onclick="scan()">Scan</button>
+                <button class="example-btn" onclick="tryExample()">Try Example</button>
+                <button class="clear-btn" onclick="clearText()">Clear</button>
+            </div>
+            <div id="loading" class="loading"></div>
         </div>
-</div>
+
+        <div id="resultCard" class="result-card">
+            <h3 id="resultText"></h3>
+            <p id="advice"></p>
+            <ul id="reasons"></ul>
+        </div>
+
+    </div>
+
+    <!-- LEARN TAB -->
+    <div id="learnTab" style="display:none;">
+
+        <div class="card">
+            <h3>How to Spot a Scam</h3>
+            <ul>
+                <li>Urgent language (Act now, immediately)</li>
+                <li>Requests for OTP, PIN, or passwords</li>
+                <li>Suspicious links (bit.ly, strange domains)</li>
+                <li>Too-good-to-be-true offers</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Common Scam Types</h3>
+            <ul>
+                <li>Bank account alerts</li>
+                <li>Fake delivery messages</li>
+                <li>Lottery or prize scams</li>
+                <li>Job offers that ask for money</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h3>Safety Tips</h3>
+            <ul>
+                <li>Never share OTP or PIN</li>
+                <li>Verify links before clicking</li>
+                <li>Call official numbers, not message numbers</li>
+                <li>When unsure, don't act immediately</li>
+            </ul>
+        </div>
+
+    </div>
+
 </div>
 
 <script>
-    let lastScannedText = "";
+let lastScannedText = "";
 
+// TAB SWITCH
+function showTab(tab) {
+    document.getElementById("scanTab").style.display = tab === 'scan' ? "block" : "none";
+    document.getElementById("learnTab").style.display = tab === 'learn' ? "block" : "none";
+
+    let tabs = document.querySelectorAll(".tab");
+    tabs.forEach(t => t.classList.remove("active"));
+    event.target.classList.add("active");
+}
+
+// SCAN
 async function scan() {
     const text = document.getElementById("inputText").value;
     const loading = document.getElementById("loading");
     const button = document.getElementById("scanBtn");
 
     if (!text.trim()) {
-        loading.innerText = "Please enter a message.";
+        loading.innerText = "Enter a message first.";
         return;
     }
 
     lastScannedText = text;
-
     loading.innerText = "Analyzing...";
     button.disabled = true;
-    button.innerText = "Scanning...";
 
     try {
-        const response = await fetch("/scan", {
+        const res = await fetch("/scan", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({ text })
         });
 
-        const data = await response.json();
+        const data = await res.json();
 
         loading.innerText = "";
         button.disabled = false;
-        button.innerText = "Scan";
 
-        const resultCard = document.getElementById("resultCard");
-        resultCard.style.display = "block";
+        const card = document.getElementById("resultCard");
+        card.style.display = "block";
 
-        const resultText = document.getElementById("resultText");
-        const advice = document.getElementById("advice");
+        let textEl = document.getElementById("resultText");
+        let advice = document.getElementById("advice");
 
         if (data.risk === "HIGH") {
-            resultText.innerText = `🔴 HIGH RISK (${data.confidence}%)`;
+            textEl.innerText = "🔴 HIGH RISK";
             advice.innerText = "Do NOT engage.";
-            resultCard.className = "result-card high";
-        }
-        else if (data.risk === "MEDIUM") {
-            resultText.innerText = `🟡 MEDIUM RISK (${data.confidence}%)`;
+            card.className = "result-card high";
+        } else if (data.risk === "MEDIUM") {
+            textEl.innerText = "🟡 MEDIUM RISK";
             advice.innerText = "Be cautious.";
-            resultCard.className = "result-card medium";
-        }
-        else {
-            resultText.innerText = `🟢 LOW RISK (${data.confidence}%)`;
+            card.className = "result-card medium";
+        } else {
+            textEl.innerText = "🟢 LOW RISK";
             advice.innerText = "Looks safe.";
-            resultCard.className = "result-card low";
+            card.className = "result-card low";
         }
 
-        let reasonsList = document.getElementById("reasons");
-        reasonsList.innerHTML = "";
-
-        data.reasons.forEach(reason => {
+        let list = document.getElementById("reasons");
+        list.innerHTML = "";
+        data.reasons.forEach(r => {
             let li = document.createElement("li");
-            li.innerText = reason;
-            reasonsList.appendChild(li);
+            li.innerText = r;
+            list.appendChild(li);
         });
 
-        document.getElementById("feedbackSection").style.display = "block";
-
-    } catch (error) {
-        loading.innerText = "Error scanning. Try again.";
+    } catch {
+        loading.innerText = "Error scanning.";
         button.disabled = false;
-        button.innerText = "Scan";
     }
 }
 
-// CLEAR FUNCTION
+// CLEAR
 function clearText() {
     document.getElementById("inputText").value = "";
-    document.getElementById("loading").innerText = "";
     document.getElementById("resultCard").style.display = "none";
-}
-async function sendFeedback(type) {
-    await fetch("/feedback", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            text: lastScannedText,
-            feedback: type
-        })
-    });
-
-    document.getElementById("feedbackSection").innerHTML =
-        "✅ Thanks for your feedback!";
+    document.getElementById("loading").innerText = "";
 }
 
-// TRY EXAMPLE FUNCTION (random examples)
+// EXAMPLE
 function tryExample() {
     const examples = [
-        "URGENT: Your bank account has been suspended. Click here to verify immediately: http://secure-login.xyz",
-        "Congratulations! You’ve won R5000. Claim now: http://bit.ly/win-cash",
-        "Dear customer, your account is limited. Verify immediately.",
-        "ABSA: Your account has unusual activity. Login now to secure it: http://absa-secure.xyz",
-        "You have a pending parcel. Pay delivery fee now: http://track-package.top"
+        "URGENT: Your bank account has been suspended. Click here: http://secure-login.xyz",
+        "You have a parcel waiting. Pay now: http://delivery-fee.top",
+        "Congratulations! You’ve won R5000. Claim now: http://bit.ly/win"
     ];
 
     const random = examples[Math.floor(Math.random() * examples.length)];
-
     document.getElementById("inputText").value = random;
 
-// Show loading message first
-document.getElementById("loading").innerText = "Loading example...";
-
-// Add slight delay before scanning
-setTimeout(() => {
-    scan(); }, 400);
+    document.getElementById("loading").innerText = "Loading example...";
+    setTimeout(() => scan(), 400);
 }
 </script>
 
