@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import re
@@ -215,6 +217,7 @@ def feedback():
 def home():
     return app.send_static_file("index.html")
 
+print("API KEY:", os.getenv("OPENAI_API_KEY"))
 
 if __name__ == "__main__":
     app.run(debug=True)
