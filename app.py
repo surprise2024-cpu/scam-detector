@@ -12,7 +12,7 @@ from datetime import datetime
 app = Flask(__name__, static_url_path='', static_folder='static')
 CORS(app)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+#client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # ---------------- DETECTION LOGIC ----------------
 def detect_scam(text):
     text_lower = text.lower()
@@ -174,38 +174,7 @@ def detect_scam(text):
     return label, confidence, risk, reasons
 
 # ---------------- AI Function----------------
-def ai_detect(text):
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-            {
-                "role": "system",
-                "content": "You are a cybersecurity assistant that detects scams."
-            },
-                {
-                    "role": "user",
-                    "content": f"""
-                    Classify this message as:
-                    Scam, Spam, Suspicious, or Safe.
-                    
-                    Return ONLY:
-                    
-                    Label: ...
-                    Confidence: 0-100
-                    Reason: short explanation
-                    
-                    Message:
-                    {text}
-                    """
-                }
-            ]
-        )
 
-        return response.choices[0].message.content
-
-    except Exception as e:
-     return f"AI error: {str(e)}"
 
 # ---------------- SAVE SCANS ----------------
 def save_scan(text, label, confidence, risk, reasons):
@@ -227,22 +196,17 @@ def scan():
     data = request.json
     text = data.get("text", "")
 
-    risk, reasons = detect_scam(text)
+    label, confidence, risk, reasons = detect_scam(text)
 
-    # AI ONLY runs if key exists
-    ai_result = None
-    if os.getenv("OPENAI_API_KEY"):
-        ai_result = ai_detect(text)
-    else:
-        ai_result = "AI not configured"
-
-    save_scan(text, risk, reasons)
+    save_scan(text, label, confidence, risk, reasons)
 
     return jsonify({
+        "label": label,
+        "confidence": confidence,
         "risk": risk,
-        "reasons": reasons,
-        "ai_analysis": ai_result
+        "reasons": reasons
     })
+
 
 @app.route("/feedback", methods=["POST"])
 def feedback():
