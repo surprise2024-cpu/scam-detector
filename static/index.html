@@ -1,348 +1,761 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AI Scam Detector</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scam Detector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #161921;
+      --surface2: #1e2330;
+      --border: RGBA(255,255,255,0.07);
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --green: #22c55e;
+      --green-dim: RGBA(34,197,94,0.12);
+      --amber: #f59e0b;
+      --amber-dim: RGBA(245,158,11,0.12);
+      --red: #ef4444;
+      --red-dim: RGBA(239,68,68,0.12);
+      --blue: #3b82f6;
+      --blue-dim: RGBA(59,130,246,0.10);
+      --accent: #6366f1;
+    }
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #eef2f7;
-            margin: 0;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .app {
-            max-width: 420px;
-            margin: auto;
-            padding: 20px;
-        }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
 
-        h2 { text-align: center; }
+    /* ── Header ── */
+    header {
+      padding: 28px 24px 0;
+      text-align: center;
+      position: relative;
+    }
 
-        .tabs {
-            display: flex;
-            margin-bottom: 15px;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-        }
+    header::before {
+      content: '';
+      position: absolute;
+      top: -40px; left: 50%;
+      transform: translateX(-50%);
+      width: 320px; height: 200px;
+      background: radial-gradient(ellipse, rgba(99,102,241,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
 
-        .tab {
-            flex: 1;
-            padding: 12px;
-            cursor: pointer;
-            border: none;
-            background: #ddd;
-        }
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
 
-        .tab.active {
-            background: #4CAF50;
-            color: white;
-        }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
 
-        .card {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
-        }
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: #fff;
+    }
 
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            resize: none;
-        }
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
 
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
+    /* ── App container ── */
+    .app {
+      max-width: 440px;
+      margin: 24px auto 0;
+      padding: 0 16px;
+    }
 
-        button {
-            padding: 10px 15px;
-            margin: 10px 5px;
-            border: none;
-            border-radius: 8px;
-            background: #007bff;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-        }
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 4px;
+      margin-bottom: 16px;
+      gap: 4px;
+    }
 
-        .scan-btn { background: #4CAF50; color: white; }
-        .example-btn { background: #2196F3; color: white; }
-        .clear-btn { background: #f44336; color: white; }
+    .tab {
+      flex: 1;
+      padding: 9px 12px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
 
-        .result-card {
-            display: none;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
+    .tab.active {
+      background: var(--surface2);
+      color: #fff;
+    }
 
-        .low { background: #e6ffed; }
-        .medium { background: #fff4e5; }
-        .high { background: #ffe5e5; }
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
 
-        .loading {
-            text-align: center;
-            color: gray;
-        }
+    /* ── Disclaimer ── */
+    .disclaimer {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #f59e0b;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
 
-        .disclaimer {
-            background: #fff3cd;
-            color: #856404;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 10px;
-            text-align: left;
-            border-left: 4px solid #ffc107;
-        }
+    .disclaimer span { opacity: 0.7; }
 
-        #feedbackSection button {
-            background: #eee;
-            color: black;
-        }
+    /* ── Textarea ── */
+    textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 12px 14px;
+      resize: none;
+      transition: border-color 0.2s;
+      outline: none;
+    }
 
-        #feedbackSection button:hover {
-            background: #ddd;
-        }
+    textarea::placeholder { color: var(--muted); }
+    textarea:focus { border-color: var(--accent); }
 
-        ul { padding-left: 18px; }
+    /* ── Buttons ── */
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
 
-        .feedback-container {
-            text-align: center;
-        }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 9px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
 
-        .feedback-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 8px;
-            min-width: 100px;
-        }
-    </style>
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-scan {
+      flex: 1;
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-scan:hover:not(:disabled) { background: #5254cc; }
+
+    .btn-example {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-example:hover { border-color: rgba(255,255,255,0.15); }
+
+    .btn-clear {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-clear:hover { color: var(--red); border-color: var(--red); }
+
+    /* ── Loading ── */
+    .loading {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 10px;
+      min-height: 20px;
+    }
+
+    .dot-pulse {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .dot-pulse span {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+    .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── Result card ── */
+    #resultCard {
+      display: none;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .verdict-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .verdict-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .verdict-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .confidence-pill {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    /* risk colours */
+    .r-low    { --rc: var(--green); --rd: var(--green-dim); }
+    .r-medium { --rc: var(--amber); --rd: var(--amber-dim); }
+    .r-high   { --rc: var(--red);   --rd: var(--red-dim); }
+
+    .result-card-inner {
+      border: 1px solid var(--rc, var(--border));
+      background: var(--rd, var(--surface2));
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .result-card-inner .verdict-dot { background: var(--rc); }
+    .result-card-inner .verdict-text { color: var(--rc); }
+    .result-card-inner .confidence-pill {
+      background: var(--rd);
+      color: var(--rc);
+      border: 1px solid var(--rc);
+    }
+
+    /* ── Score bar ── */
+    .score-bar-wrap {
+      margin: 12px 0 4px;
+    }
+
+    .score-bar-track {
+      height: 5px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--rc, var(--accent));
+      transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    /* ── AI insight box ── */
+    .ai-insight {
+      background: rgba(99,102,241,0.08);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 10px;
+      padding: 11px 13px;
+      margin: 12px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #c4c6f7;
+    }
+
+    .ai-insight-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 5px;
+    }
+
+    .ai-action {
+      background: rgba(34,197,94,0.07);
+      border: 1px solid rgba(34,197,94,0.18);
+      border-radius: 10px;
+      padding: 10px 13px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #86efac;
+      line-height: 1.5;
+    }
+
+    .ai-action.danger {
+      background: rgba(239,68,68,0.07);
+      border-color: rgba(239,68,68,0.2);
+      color: #fca5a5;
+    }
+
+    /* ── Category chip ── */
+    .category-chip {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-bottom: 10px;
+      text-transform: capitalize;
+    }
+
+    /* ── Reasons list ── */
+    .reasons-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 12px 0 6px;
+    }
+
+    .reasons-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .reasons-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      font-size: 13px;
+      color: #b0b5c4;
+      line-height: 1.5;
+    }
+
+    .reasons-list li::before {
+      content: '›';
+      color: var(--rc, var(--muted));
+      font-size: 15px;
+      line-height: 1.3;
+      flex-shrink: 0;
+    }
+
+    /* ── Rule vs AI source tags ── */
+    .source-tag {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 500;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .tag-rule { background: rgba(245,158,11,0.12); color: #fbbf24; }
+    .tag-ai   { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+
+    /* ── Feedback ── */
+    .feedback-section {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .feedback-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .feedback-btns {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .feedback-btns button {
+      padding: 7px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .feedback-btns button:hover { border-color: rgba(255,255,255,0.2); }
+    .feedback-thanks { font-size: 13px; color: var(--green); }
+
+    /* ── Learn tab ── */
+    .learn-card {
+      margin-bottom: 10px;
+    }
+
+    .learn-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .learn-card ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .learn-card li {
+      font-size: 13px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.5;
+    }
+
+    .learn-card li::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+  </style>
 </head>
 
 <body>
 
+<header>
+  <div class="logo">
+    <div class="logo-icon"></div>
+    <h1>Scam Detector</h1>
+  </div>
+  <p class="subtitle">AI-powered threat analysis</p>
+</header>
+
 <div class="app">
-    <h2>Scam Detector</h2>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('scan', this)">Scan</button>
+    <button class="tab" onclick="showTab('learn', this)">Learn</button>
+  </div>
+
+  <!-- SCAN TAB -->
+  <div id="scanTab">
 
     <div class="disclaimer">
-        This tool provides risk analysis, not guarantees. Always verify important messages.
+        <span>Risk analysis only, not a guarantee. Always verify important messages independently.</span>
     </div>
 
-    <div class="tabs">
-        <button class="tab active" onclick="showTab('scan', this)">Scan</button>
-        <button class="tab" onclick="showTab('learn', this)">Learn</button>
+    <div class="card">
+        <label for="inputText"></label><textarea id="inputText" rows="5" placeholder="Paste an SMS, email, or URL to scan"></textarea>
+
+      <div class="button-group">
+        <button id="scanBtn" class="btn btn-scan" onclick="scan()">Scan message</button>
+        <button class="btn btn-example" onclick="tryExample()">Example</button>
+        <button class="btn btn-clear" onclick="clearText()">Clear</button>
+      </div>
+
+      <div id="loading" class="loading"></div>
     </div>
 
-    <!-- SCAN TAB -->
-    <div id="scanTab">
+    <!-- RESULT -->
+    <div id="resultCard">
+      <div class="result-card-inner" id="resultInner">
 
-        <div class="card">
-            <textarea id="inputText" rows="5" placeholder="Paste message here..."></textarea>
-
-            <div class="button-group">
-                <button id="scanBtn" class="scan-btn" onclick="scan()">Scan</button>
-                <button class="example-btn" onclick="tryExample()">Try Example</button>
-                <button class="clear-btn" onclick="clearText()">Clear</button>
-            </div>
-
-            <div id="loading" class="loading"></div>
+        <div class="result-header">
+          <div class="verdict-badge">
+            <div class="verdict-dot"></div>
+            <span class="verdict-text" id="verdictText"></span>
+          </div>
+          <span class="confidence-pill" id="confidencePill"></span>
         </div>
 
-        <div id="resultCard" class="result-card">
-            <h3 id="resultText"></h3>
-            <p id="advice"></p>
-            <ul id="reasons"></ul>
-
-            <div id="feedbackSection" style="display:none; margin-top:10px;"></div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-track">
+            <div class="score-bar-fill" id="scoreBar" style="width:0%"></div>
+          </div>
         </div>
 
+        <div id="categoryChip"></div>
+
+        <!-- AI insight (shown when AI is available) -->
+        <div id="aiInsight" style="display:none">
+          <div class="ai-insight">
+            <div class="ai-insight-label">✦ AI Analysis</div>
+            <div id="aiSummaryText"></div>
+          </div>
+          <div class="ai-action" id="aiActionBox">
+            <span id="aiActionText"></span>
+          </div>
+        </div>
+
+        <div class="reasons-label">Detected signals</div>
+        <ul class="reasons-list" id="reasons"></ul>
+
+        <div class="feedback-section" id="feedbackSection"></div>
+      </div>
     </div>
 
-    <!-- LEARN TAB -->
-    <div id="learnTab" style="display:none;">
+  </div>
 
-        <div class="card">
-            <h3>How to Spot a Scam</h3>
-            <ul>
-                <li>Urgent language (Act now, immediately)</li>
-                <li>Requests for OTP, PIN, or passwords</li>
-                <li>Suspicious links (bit.ly, strange domains)</li>
-                <li>Too-good-to-be-true offers</li>
-            </ul>
-        </div>
+  <!-- LEARN TAB -->
+  <div id="learnTab" style="display:none">
 
-        <div class="card">
-            <h3>Common Scam Types</h3>
-            <ul>
-                <li>Bank alerts</li>
-                <li>Fake deliveries</li>
-                <li>Lottery scams</li>
-                <li>Job scams</li>
-            </ul>
-        </div>
-
-        <div class="card">
-            <h3>Safety Tips</h3>
-            <ul>
-                <li>Never share OTP or PIN</li>
-                <li>Verify links</li>
-                <li>Call official numbers</li>
-                <li>Don't act under pressure</li>
-            </ul>
-        </div>
-
+    <div class="card learn-card">
+      <h3>How to spot a scam</h3>
+      <ul>
+        <li>Urgent language, "Act now", "Final notice", "Account blocked"</li>
+        <li>Requests for OTP, PIN, password, or CVV</li>
+        <li>Suspicious or shortened links (bit.ly, .xyz, .top)</li>
+        <li>Too-good-to-be-true offers or prize winnings</li>
+        <li>Generic greetings like "Dear Customer"</li>
+      </ul>
     </div>
+
+    <div class="card learn-card">
+      <h3>Common scam types in South Africa</h3>
+      <ul>
+        <li>Bank impersonation (ABSA, FNB, Capitec, Nedbank)</li>
+        <li>SASSA / government grant fraud</li>
+        <li>Fake parcel or delivery fees</li>
+        <li>Lottery & prize scams</li>
+        <li>Job offer scams</li>
+        <li>WhatsApp investment / crypto scams</li>
+      </ul>
+    </div>
+
+    <div class="card learn-card">
+      <h3>Safety tips</h3>
+      <ul>
+        <li>Never share your OTP or PIN, not even with your bank</li>
+        <li>Hover over links before clicking; verify the domain</li>
+        <li>Call the official company number, not one in the message</li>
+        <li>Don't act under pressure scammers rely on urgency</li>
+        <li>When in doubt, delete and report</li>
+      </ul>
+    </div>
+
+  </div>
 
 </div>
 
 <script>
-let lastScannedText = "";
+    let lastScannedText = "";
 
-// TAB SWITCH
-function showTab(tab, el) {
-    document.getElementById("scanTab").style.display = tab === 'scan' ? "block" : "none";
-    document.getElementById("learnTab").style.display = tab === 'learn' ? "block" : "none";
-
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    el.classList.add("active");
-}
-
-// SCAN
-async function scan() {
-    const text = document.getElementById("inputText").value;
-    const loading = document.getElementById("loading");
-    const button = document.getElementById("scanBtn");
-
-    if (!text.trim()) {
-        loading.innerText = "Enter a message first.";
-        return;
+    function showTab(tab, el) {
+      document.getElementById("scanTab").style.display = tab === "scan" ? "block" : "none";
+      document.getElementById("learnTab").style.display = tab === "learn" ? "block" : "none";
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      el.classList.add("active");
     }
 
-    lastScannedText = text;
-    loading.innerText = "Analyzing...";
-    button.disabled = true;
+    async function scan() {
+      const text = document.getElementById("inputText").value;
+      const loading = document.getElementById("loading");
+      const btn = document.getElementById("scanBtn");
 
-    try {
+      if (!text.trim()) {
+        loading.innerText = "Please enter a message first.";
+        return;
+      }
+
+      lastScannedText = text;
+      loading.innerHTML = '<div class="dot-pulse"><span></span><span></span><span></span></div>';
+      btn.disabled = true;
+      document.getElementById("resultCard").style.display = "none";
+
+      try {
         const res = await fetch("/scan", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ text })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
         });
 
         const data = await res.json();
+        if (!data || !data.risk) throw new Error("Invalid response");
 
-        if (!data || !data.risk) {
-            throw new Error("Invalid response");
-        }
+        loading.innerHTML = "";
+        btn.disabled = false;
 
-        loading.innerText = "";
-        button.disabled = false;
+        renderResult(data);
 
-        const card = document.getElementById("resultCard");
-        card.style.display = "block";
-
-        let textEl = document.getElementById("resultText");
-        let advice = document.getElementById("advice");
-
-        if (data.risk === "HIGH") {
-            textEl.innerText = `🔴 HIGH RISK (${data.confidence}%)`;
-            advice.innerText = "Do NOT engage.";
-            card.className = "result-card high";
-        } else if (data.risk === "MEDIUM") {
-            textEl.innerText = `🟡 MEDIUM RISK (${data.confidence}%)`;
-            advice.innerText = "Be cautious.";
-            card.className = "result-card medium";
-        } else {
-            textEl.innerText = `🟢 LOW RISK (${data.confidence}%)`;
-            advice.innerText = "Looks safe.";
-            card.className = "result-card low";
-        }
-
-        let list = document.getElementById("reasons");
-        list.innerHTML = "";
-
-        if (data.reasons.length === 0) {
-            let li = document.createElement("li");
-            li.innerText = "No specific risk indicators detected.";
-            list.appendChild(li);
-        } else {
-            data.reasons.forEach(r => {
-                let li = document.createElement("li");
-                li.innerText = r;
-                list.appendChild(li);
-            });
-        }
-
-        // RESET + SHOW FEEDBACK
-        document.getElementById("feedbackSection").innerHTML = `
-            <div class="feedback-container">
-                <p>Was this accurate?</p>
-                <div class="feedback-buttons">
-                    <button onclick="sendFeedback('correct')">👍 Correct</button>
-                    <button onclick="sendFeedback('wrong')">👎 Wrong</button>
-                </div>
-            </div>
-        `;
-        document.getElementById("feedbackSection").style.display = "block";
-
-        // AUTO SCROLL
-        card.scrollIntoView({ behavior: "smooth" });
-
-    } catch {
-        loading.innerText = "Error scanning.";
-        button.disabled = false;
+      } catch (e) {
+        loading.innerText = "Error scanning. Please try again.";
+        btn.disabled = false;
+      }
     }
-}
 
-// CLEAR
-function clearText() {
-    document.getElementById("inputText").value = "";
-    document.getElementById("resultCard").style.display = "none";
-    document.getElementById("loading").innerText = "";
-}
+    function renderResult(data) {
+      const card = document.getElementById("resultCard");
+      const inner = document.getElementById("resultInner");
 
-// FEEDBACK
-async function sendFeedback(type) {
-    await fetch("/feedback", {
+      // Risk class
+      const riskClass = data.risk === "HIGH" ? "r-high"
+                      : data.risk === "MEDIUM" ? "r-medium"
+                      : "r-low";
+
+      inner.className = "result-card-inner " + riskClass;
+
+      // Verdict + confidence
+      const riskEmoji = data.risk === "HIGH" ? "🔴" : data.risk === "MEDIUM" ? "🟡" : "🟢";
+      document.getElementById("verdictText").innerText = riskEmoji + " " + data.label;
+      document.getElementById("confidencePill").innerText = data.confidence + "% confidence";
+
+      // Score bar (animate after display)
+      requestAnimationFrame(() => {
+        document.getElementById("scoreBar").style.width = data.confidence + "%";
+      });
+
+      // Category chip
+      const chip = document.getElementById("categoryChip");
+      if (data.ai_category && data.ai_category !== "safe") {
+        chip.innerHTML = '<span class="category-chip">' + data.ai_category.replace(/_/g, " ") + '</span>';
+        chip.style.display = "block";
+      } else {
+        chip.style.display = "none";
+      }
+
+      // AI insight
+      const aiBox = document.getElementById("aiInsight");
+      if (data.ai_available && data.ai_summary) {
+        document.getElementById("aiSummaryText").innerText = data.ai_summary;
+
+        const actionBox = document.getElementById("aiActionBox");
+        document.getElementById("aiActionText").innerText = data.ai_action || "";
+        actionBox.className = "ai-action" + (data.risk === "HIGH" ? " danger" : "");
+
+        aiBox.style.display = "block";
+      } else {
+        aiBox.style.display = "none";
+      }
+
+      // Reasons — tag rule vs AI flags
+      const list = document.getElementById("reasons");
+      list.innerHTML = "";
+
+      const aiFlags = new Set(data.ai_flags || []);
+
+      if (!data.reasons || data.reasons.length === 0) {
+        list.innerHTML = '<li>No specific risk indicators detected.</li>';
+      } else {
+        data.reasons.forEach(r => {
+          const li = document.createElement("li");
+          const isAI = aiFlags.has(r);
+          li.innerHTML = `
+            <span>${r}</span>
+            <span class="source-tag ${isAI ? "tag-ai" : "tag-rule"}">${isAI ? "AI" : "Rule"}</span>
+          `;
+          list.appendChild(li);
+        });
+      }
+
+      // Feedback
+      document.getElementById("feedbackSection").innerHTML = `
+        <p class="feedback-label">Was this result accurate?</p>
+        <div class="feedback-btns">
+          <button onclick="sendFeedback('correct')">👍 Correct</button>
+          <button onclick="sendFeedback('wrong')">👎 Wrong</button>
+        </div>
+      `;
+
+      card.style.display = "block";
+      card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function clearText() {
+      document.getElementById("inputText").value = "";
+      document.getElementById("resultCard").style.display = "none";
+      document.getElementById("loading").innerHTML = "";
+    }
+
+    async function sendFeedback(type) {
+      await fetch("/feedback", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            text: lastScannedText,
-            feedback: type
-        })
-    });
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: lastScannedText, feedback: type })
+      });
+      document.getElementById("feedbackSection").innerHTML =
+        '<span class="feedback-thanks">✓ Thanks for your feedback!</span>';
+    }
 
-    document.getElementById("feedbackSection").innerHTML =
-        "Thanks for your feedback!";
-}
-
-// EXAMPLE
-function tryExample() {
-    const examples = [
-        "URGENT: Your bank account has been suspended. Click here: http://secure-login.xyz",
-        "You have a parcel waiting. Pay now: http://delivery-fee.top",
-        "Congratulations! You’ve won R5000. Claim now: http://bit.ly/win"
-    ];
-
-    const random = examples[Math.floor(Math.random() * examples.length)];
-    document.getElementById("inputText").value = random;
-
-    document.getElementById("loading").innerText = "Loading example...";
-    setTimeout(() => scan(), 400);
-}
+    function tryExample() {
+      const examples = [
+        "URGENT: Your ABSA account has been suspended. Verify now: https://absa-secure.xyz",
+        "You have a parcel waiting. Pay R49 delivery fee: https://delivery-fee.top",
+        "Congratulations! You've won R5000. Claim now: https://bit.ly/win-za",
+        "Dear Customer, unusual activity detected on your Capitec account. Login immediately: https://capitec-alert.ru/verify"
+      ];
+      document.getElementById("inputText").value = examples[Math.floor(Math.random() * examples.length)];
+      document.getElementById("loading").innerHTML = "";
+      setTimeout(() => scan(), 300);
+    }
 </script>
 
 </body>
