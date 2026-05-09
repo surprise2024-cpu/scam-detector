@@ -4,7 +4,7 @@ import csv
 import json
 from datetime import datetime
 
-import google.generativeai as genai
+from google import genai
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -20,13 +20,12 @@ def get_ai_model():
     if _gemini_model is None:
         api_key = os.getenv("GEMINI_API_KEY")
         if api_key:
-            genai.configure(api_key=api_key)
-            _gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+            _gemini_model = genai.Client(api_key=api_key)
     return _gemini_model
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# EXISTING RULE-BASED DETECTION (unchanged)
+# RULE-BASED DETECTION
 # ──────────────────────────────────────────────────────────────────────────────
 
 def detect_scam(text):
@@ -199,18 +198,17 @@ Content to analyse:
 {text}"""
 
 
-def ai_analyse(text: str) -> dict | None:
-    """
-    Call Gemini to analyze the text.
-    Returns a dict with ai_* keys, or None if AI is unavailable.
-    """
-    model = get_ai_model()
-    if not model:
+def ai_analyse(text: str):
+    client = get_ai_model()
+    if not client:
         return None
 
     try:
         prompt = AI_PROMPT_TEMPLATE.format(text=text)
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
         raw = response.text.strip()
 
         # Strip accidental markdown fences
@@ -223,11 +221,6 @@ def ai_analyse(text: str) -> dict | None:
 
 
 def combine_results(rule_label, rule_confidence, rule_risk, rule_reasons, ai_result):
-    """
-    Merge rule-based and AI results into a single response.
-    Blends scores: 40% rules + 60% AI.
-    Falls back to rules-only if AI is unavailable.
-    """
     if ai_result is None:
         return {
             "label": rule_label,
@@ -241,7 +234,7 @@ def combine_results(rule_label, rule_confidence, rule_risk, rule_reasons, ai_res
             "ai_action": None,
         }
 
-    # Blend confidence scores
+    # Blend confidence scores: 40% rules + 60% AI
     blended_score = int(rule_confidence * 0.4 + ai_result["ai_score"] * 0.6)
     blended_score = max(0, min(100, blended_score))
 
