@@ -1,1 +1,2 @@
 2026-05-09 20:41:55.207194,You have a parcel waiting. Pay R49 delivery fee: https://delivery-fee.top,SUSPICIOUS,40,LOW-MEDIUM,Contains a link; Uses suspicious or shortened link,
+2026-05-09 21:14:31.721047,URGENT: Your ABSA account has been suspended. Verify now: https://absa-secure.xyz,SCAM,100,HIGH,Uses urgent or threatening language; Contains a link; Uses suspicious or shortened link; Mentions financial/insurance brand (can be impersonated); Combines urgency with a link,

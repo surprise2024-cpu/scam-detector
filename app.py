@@ -207,7 +207,7 @@ def ai_analyse(text: str):
     try:
         prompt = AI_PROMPT_TEMPLATE.format(text=text)
         response = client.models.generate_content(
-            model="models/gemini-2.0-flash",
+            model="models/gemini-2.0-flash-lite",
             contents=prompt
         )
         print("[AI] Raw response:", response.text)
