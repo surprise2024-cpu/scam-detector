@@ -4,7 +4,7 @@ import csv
 import json
 from datetime import datetime
 
-import anthropic
+import google.generativeai as genai
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -12,16 +12,17 @@ from flask_cors import CORS
 app = Flask(__name__, static_url_path='', static_folder='static')
 CORS(app)
 
-# ── Anthropic client (set ANTHROPIC_API_KEY in your environment) ──────────────
-_anthropic_client = None
+# ── Gemini client (set GEMINI_API_KEY in your environment) ────────────────────
+_gemini_model = None
 
-def get_ai_client():
-    global _anthropic_client
-    if _anthropic_client is None:
-        api_key = os.getenv("ANTHROPIC_API_KEY")
+def get_ai_model():
+    global _gemini_model
+    if _gemini_model is None:
+        api_key = os.getenv("GEMINI_API_KEY")
         if api_key:
-            _anthropic_client = anthropic.Anthropic(api_key=api_key)
-    return _anthropic_client
+            genai.configure(api_key=api_key)
+            _gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+    return _gemini_model
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -32,10 +33,6 @@ def detect_scam(text):
     text_lower = text.lower()
     score = 0
     reasons = []
-
-    # ---------------- BASIC RULES ----------------
-
-    # ---------------- LINK + MARKETING COMBO (VERY IMPORTANT) ----------------
 
     # Urgency
     if any(word in text_lower for word in ["urgent", "immediately", "act now", "final notice", "account blocked"]):
@@ -77,8 +74,7 @@ def detect_scam(text):
         score += 3
         reasons.append("Requests payment")
 
-    # ---------------- EMAIL SCAM PATTERNS ----------------
-
+    # Email scam patterns
     if any(word in text_lower for word in ["dear customer", "dear user", "valued customer"]):
         score += 2
         reasons.append("Generic greeting (phishing style)")
@@ -102,18 +98,15 @@ def detect_scam(text):
         score += 4
         reasons.append("Mentions inheritance or unexpected funds")
 
-    if re.search(r"[\w\.-]+@[\w\.-]+\.\w+", text):
+    if re.search(r"[\w.-]+@[\w.-]+\.\w+", text):
         score += 3
         reasons.append("Contains email contact (common scam tactic)")
 
-    if any(word in text_lower for word in [
-        "further info", "more details", "contact for details"
-    ]):
+    if any(word in text_lower for word in ["further info", "more details", "contact for details"]):
         score += 2
         reasons.append("Uses vague instructions")
 
-    # ---------------- SMS / SPAM PATTERNS ----------------
-
+    # SMS / spam patterns
     if any(word in text_lower for word in [
         "absa", "fnb", "standard bank", "nedbank", "capitec",
         "miway", "outsurance", "dialdirect", "king price"
@@ -147,14 +140,11 @@ def detect_scam(text):
         score += 2
         reasons.append("Fake personalization (name-based spam)")
 
-    # ---------------- COMBINATION LOGIC ----------------
-
     if has_link and "urgent" in text_lower:
         score += 2
         reasons.append("Combines urgency with a link")
 
-    # ---------------- FINAL CLASSIFICATION ----------------
-
+    # Final classification
     if score >= 10:
         label = "SCAM"
     elif score >= 6:
@@ -179,69 +169,64 @@ def detect_scam(text):
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# AI-POWERED ANALYSIS (Claude layer)
+# AI ANALYSIS (Gemini layer)
 # ──────────────────────────────────────────────────────────────────────────────
 
-AI_SYSTEM_PROMPT = """You are a cybersecurity expert specialising in scam, phishing, and spam detection for South African users.
-Analyse the provided content and return ONLY a valid JSON object — no markdown, no extra text.
+AI_PROMPT_TEMPLATE = """You are a cybersecurity expert specialising in scam, phishing, and spam detection for South African users.
+Analyse the content below and return ONLY a valid JSON object — no markdown, no extra text, no backticks.
 
 JSON schema (all fields required):
-{
+{{
   "ai_score": <integer 0-100>,
-  "ai_label": <"SAFE" | "SUSPICIOUS" | "SPAM" | "SCAM">,
-  "ai_category": <"safe" | "phishing" | "smishing" | "spam" | "romance_scam" | "investment_fraud" | "lottery_scam" | "impersonation" | "advance_fee_fraud" | "other_scam">,
+  "ai_label": <"SAFE" or "SUSPICIOUS" or "SPAM" or "SCAM">,
+  "ai_category": <"safe" or "phishing" or "smishing" or "spam" or "romance_scam" or "investment_fraud" or "lottery_scam" or "impersonation" or "advance_fee_fraud" or "other_scam">,
   "ai_flags": [<short strings describing specific red flags>],
   "ai_summary": <one plain-English sentence verdict>,
   "ai_action": <one sentence advice for the user>
-}
+}}
 
-Scoring:
-  0–20   → safe
-  21–40  → low risk
-  41–60  → suspicious
-  61–80  → likely scam
-  81–100 → confirmed scam indicators
+Scoring guide:
+  0-20   = safe
+  21-40  = low risk
+  41-60  = suspicious
+  61-80  = likely scam
+  81-100 = confirmed scam indicators
 
 Focus on patterns common in South Africa: bank impersonation (ABSA, FNB, Capitec, Nedbank, Standard Bank),
-SASSA/government grant fraud, job offer scams, WhatsApp prize scams, and insurance spam."""
+SASSA/government grant fraud, job offer scams, WhatsApp prize scams, and insurance spam.
+
+Content to analyse:
+{text}"""
 
 
 def ai_analyse(text: str) -> dict | None:
     """
-    Call Claude to analyse the text.
+    Call Gemini to analyze the text.
     Returns a dict with ai_* keys, or None if AI is unavailable.
     """
-    client = get_ai_client()
-    if not client:
+    model = get_ai_model()
+    if not model:
         return None
 
     try:
-        response = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=800,
-            system=AI_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": f"Analyse this content:\n\n{text}"}],
-        )
-        raw = response.content[0].text.strip()
+        prompt = AI_PROMPT_TEMPLATE.format(text=text)
+        response = model.generate_content(prompt)
+        raw = response.text.strip()
+
         # Strip accidental markdown fences
         raw = re.sub(r"^```json\s*|^```\s*|```$", "", raw, flags=re.MULTILINE).strip()
+
         return json.loads(raw)
     except Exception as e:
-        print(f"[AI] Analysis failed: {e}")
+        print(f"[AI] Gemini analysis failed: {e}")
         return None
 
 
-def combine_results(
-    rule_label: str,
-    rule_confidence: int,
-    rule_risk: str,
-    rule_reasons: list[str],
-    ai_result: dict | None,
-) -> dict:
+def combine_results(rule_label, rule_confidence, rule_risk, rule_reasons, ai_result):
     """
     Merge rule-based and AI results into a single response.
-    When AI is available, blend scores (40% rules, 60% AI).
-    When AI is unavailable, fall back to rules only.
+    Blends scores: 40% rules + 60% AI.
+    Falls back to rules-only if AI is unavailable.
     """
     if ai_result is None:
         return {
@@ -262,9 +247,7 @@ def combine_results(
 
     # Final label: take the more severe of the two
     severity = {"SAFE": 0, "SUSPICIOUS": 1, "SPAM": 2, "SCAM": 3}
-    rule_sev = severity.get(rule_label, 0)
-    ai_sev = severity.get(ai_result["ai_label"], 0)
-    final_label = rule_label if rule_sev >= ai_sev else ai_result["ai_label"]
+    final_label = rule_label if severity.get(rule_label, 0) >= severity.get(ai_result["ai_label"], 0) else ai_result["ai_label"]
 
     # Recalculate risk from blended score
     if blended_score >= 81:
@@ -276,7 +259,7 @@ def combine_results(
     else:
         final_risk = "LOW"
 
-    # Merge reasons: keep rule reasons + add AI flags (deduplicated)
+    # Merge reasons + AI flags (deduplicated)
     all_reasons = list(rule_reasons)
     for flag in ai_result.get("ai_flags", []):
         if flag not in all_reasons:
@@ -292,7 +275,6 @@ def combine_results(
         "ai_flags": ai_result.get("ai_flags", []),
         "ai_category": ai_result.get("ai_category"),
         "ai_action": ai_result.get("ai_action"),
-        # Keep individual scores for debugging / transparency
         "rule_confidence": rule_confidence,
         "ai_score": ai_result.get("ai_score"),
     }
@@ -330,7 +312,7 @@ def scan():
     # Step 1: rule-based detection (fast, always runs)
     rule_label, rule_confidence, rule_risk, rule_reasons = detect_scam(text)
 
-    # Step 2: AI analysis (runs when API key is set)
+    # Step 2: Gemini AI analysis (runs when API key is set)
     ai_result = ai_analyse(text)
 
     # Step 3: combine into final verdict
@@ -364,5 +346,5 @@ def home():
 
 
 if __name__ == "__main__":
-    print("Anthropic API key loaded:", bool(os.getenv("ANTHROPIC_API_KEY")))
+    print("Gemini API key loaded:", bool(os.getenv("GEMINI_API_KEY")))
     app.run(debug=True)
