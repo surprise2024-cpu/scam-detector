@@ -201,6 +201,7 @@ Content to analyse:
 def ai_analyse(text: str):
     client = get_ai_model()
     if not client:
+        print("[AI] No client — API key missing")
         return None
 
     try:
@@ -209,12 +210,13 @@ def ai_analyse(text: str):
             model="models/gemini-2.0-flash",
             contents=prompt
         )
+        print("[AI] Raw response:", response.text)
         raw = response.text.strip()
-
-        # Strip accidental markdown fences
         raw = re.sub(r"^```json\s*|^```\s*|```$", "", raw, flags=re.MULTILINE).strip()
-
-        return json.loads(raw)
+        print("[AI] Cleaned:", raw)
+        result = json.loads(raw)
+        print("[AI] Parsed OK:", result)
+        return result
     except Exception as e:
         print(f"[AI] Gemini analysis failed: {e}")
         return None
