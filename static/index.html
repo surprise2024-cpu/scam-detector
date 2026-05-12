@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Scam Detector</title>
+  <title>Scam Detector SA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
@@ -28,23 +28,181 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 0 0 60px;
     }
 
-    header {
-      padding: 28px 24px 0;
+    /* ── LANDING PAGE ── */
+    #landingPage {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .landing-hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
+      padding: 60px 24px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .landing-hero::before {
+      content: '';
+      position: absolute;
+      top: -100px; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(99,102,241,0.2) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .landing-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -50px; left: 30%;
+      width: 300px; height: 300px;
+      background: radial-gradient(ellipse, rgba(239,68,68,0.08) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 12px;
+      color: #a5b4fc;
+      margin-bottom: 24px;
       position: relative;
     }
 
-    header::before {
-      content: '';
-      position: absolute;
-      top: -40px; left: 50%;
-      transform: translateX(-50%);
-      width: 320px; height: 200px;
-      background: radial-gradient(ellipse, rgba(99,102,241,0.18) 0%, transparent 70%);
-      pointer-events: none;
+    .hero-icon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      margin-bottom: 24px;
+      box-shadow: 0 0 40px rgba(99,102,241,0.3);
+      position: relative;
+    }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(32px, 8vw, 48px);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    .hero-title span { color: var(--accent); }
+
+    .hero-desc {
+      font-size: clamp(14px, 4vw, 16px);
+      color: #9ca3af;
+      line-height: 1.7;
+      max-width: 380px;
+      margin-bottom: 36px;
+      position: relative;
+    }
+
+    .hero-cta {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      position: relative;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .btn-hero {
+      width: 100%;
+      padding: 15px 24px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-hero-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 24px rgba(99,102,241,0.35);
+    }
+
+    .btn-hero-primary:hover { background: #5254cc; transform: translateY(-1px); }
+    .btn-hero-primary:active { transform: translateY(0); }
+
+    .btn-hero-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-hero-secondary:hover { border-color: rgba(255,255,255,0.15); }
+
+    /* Features grid */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      padding: 0 24px 48px;
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 14px;
+      text-align: center;
+    }
+
+    .feature-icon { font-size: 24px; margin-bottom: 8px; }
+    .feature-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .feature-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    /* Stats row */
+    .landing-stats {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding: 24px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: 0 0 48px;
+    }
+
+    .landing-stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .landing-stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── APP PAGE ── */
+    #appPage { display: none; padding-bottom: 60px; }
+
+    header {
+      padding: 20px 16px 0;
+      text-align: center;
+      position: relative;
     }
 
     .logo {
@@ -55,50 +213,46 @@
     }
 
     .logo-icon {
-      width: 36px; height: 36px;
+      width: 32px; height: 32px;
       background: var(--accent);
-      border-radius: 10px;
+      border-radius: 9px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
+      font-size: 16px;
     }
 
-    h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: 22px;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    h1 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; }
+    .subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
     .app {
-      max-width: 440px;
-      margin: 24px auto 0;
-      padding: 0 16px;
+      max-width: 480px;
+      margin: 20px auto 0;
+      padding: 0 12px;
     }
 
+    /* ── Tabs ── */
     .tabs {
       display: flex;
       background: var(--surface);
       border-radius: 12px;
       border: 1px solid var(--border);
       padding: 4px;
-      margin-bottom: 16px;
-      gap: 4px;
+      margin-bottom: 14px;
+      gap: 3px;
     }
 
     .tab {
       flex: 1;
-      padding: 9px 8px;
+      padding: 8px 6px;
       border: none;
       background: transparent;
       color: var(--muted);
       font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
       border-radius: 9px;
       cursor: pointer;
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     .tab.active { background: var(--surface2); color: #fff; }
@@ -107,21 +261,21 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 16px;
+      padding: 14px;
       margin-bottom: 12px;
     }
 
     .disclaimer {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
+      gap: 8px;
       background: rgba(245,158,11,0.08);
       border: 1px solid rgba(245,158,11,0.2);
       border-radius: 10px;
-      padding: 10px 12px;
+      padding: 9px 12px;
       font-size: 12px;
       color: #f59e0b;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       line-height: 1.5;
     }
 
@@ -143,10 +297,10 @@
     textarea::placeholder { color: var(--muted); }
     textarea:focus { border-color: var(--accent); }
 
-    .button-group { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .button-group { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 
     .btn {
-      padding: 10px 16px;
+      padding: 10px 14px;
       border: none;
       border-radius: 9px;
       font-family: 'DM Sans', sans-serif;
@@ -161,7 +315,6 @@
     .btn-scan { flex: 1; background: var(--accent); color: #fff; }
     .btn-scan:hover:not(:disabled) { background: #5254cc; }
     .btn-example { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-    .btn-example:hover { border-color: rgba(255,255,255,0.15); }
     .btn-clear { background: transparent; color: var(--muted); border: 1px solid var(--border); }
     .btn-clear:hover { color: var(--red); border-color: var(--red); }
 
@@ -169,8 +322,7 @@
 
     .dot-pulse { display: inline-flex; gap: 4px; }
     .dot-pulse span {
-      width: 5px; height: 5px;
-      border-radius: 50%;
+      width: 5px; height: 5px; border-radius: 50%;
       background: var(--accent);
       animation: pulse 1.2s ease-in-out infinite;
     }
@@ -189,508 +341,398 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .result-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
+    .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
     .verdict-badge { display: flex; align-items: center; gap: 8px; }
     .verdict-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .verdict-text { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
+    .confidence-pill { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
 
-    .confidence-pill {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 3px 10px;
-      border-radius: 20px;
-    }
-
-    .result-card-inner {
-      border: 1px solid var(--rc, var(--border));
-      background: var(--rd, var(--surface2));
-      border-radius: 12px;
-      padding: 14px;
-    }
-
+    .result-card-inner { border: 1px solid var(--rc, var(--border)); background: var(--rd, var(--surface2)); border-radius: 12px; padding: 14px; }
     .r-low    { --rc: var(--green); --rd: var(--green-dim); }
     .r-medium { --rc: var(--amber); --rd: var(--amber-dim); }
     .r-high   { --rc: var(--red);   --rd: var(--red-dim); }
-
     .result-card-inner .verdict-dot { background: var(--rc); }
     .result-card-inner .verdict-text { color: var(--rc); }
-    .result-card-inner .confidence-pill {
-      background: var(--rd);
-      color: var(--rc);
-      border: 1px solid var(--rc);
-    }
+    .result-card-inner .confidence-pill { background: var(--rd); color: var(--rc); border: 1px solid var(--rc); }
 
     .score-bar-wrap { margin: 12px 0 4px; }
     .score-bar-track { height: 5px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
     .score-bar-fill { height: 100%; border-radius: 99px; background: var(--rc, var(--accent)); transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
 
-    .ai-insight {
-      background: rgba(99,102,241,0.08);
-      border: 1px solid rgba(99,102,241,0.2);
-      border-radius: 10px;
-      padding: 11px 13px;
-      margin: 12px 0;
-      font-size: 13px;
-      line-height: 1.6;
-      color: #c4c6f7;
-    }
+    .ai-insight { background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; padding: 11px 13px; margin: 12px 0; font-size: 13px; line-height: 1.6; color: #c4c6f7; }
+    .ai-insight-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+    .ai-action { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.18); border-radius: 10px; padding: 10px 13px; margin-top: 10px; font-size: 13px; color: #86efac; line-height: 1.5; }
+    .ai-action.danger { background: rgba(239,68,68,0.07); border-color: rgba(239,68,68,0.2); color: #fca5a5; }
 
-    .ai-insight-label {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 5px;
-    }
+    .category-chip { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); margin-bottom: 10px; text-transform: capitalize; }
 
-    .ai-action {
-      background: rgba(34,197,94,0.07);
-      border: 1px solid rgba(34,197,94,0.18);
-      border-radius: 10px;
-      padding: 10px 13px;
-      margin-top: 10px;
-      font-size: 13px;
-      color: #86efac;
-      line-height: 1.5;
-    }
-
-    .ai-action.danger {
-      background: rgba(239,68,68,0.07);
-      border-color: rgba(239,68,68,0.2);
-      color: #fca5a5;
-    }
-
-    .category-chip {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 500;
-      padding: 3px 10px;
-      border-radius: 20px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      margin-bottom: 10px;
-      text-transform: capitalize;
-    }
-
-    .reasons-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 12px 0 6px;
-    }
-
+    .reasons-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
     .reasons-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
-    .reasons-list li {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 7px;
-      font-size: 13px;
-      color: #b0b5c4;
-      line-height: 1.5;
-    }
-
-    .reasons-list li .reason-text {
-      display: flex;
-      align-items: flex-start;
-      gap: 7px;
-    }
-
-    .reasons-list li .reason-text::before {
-      content: '›';
-      color: var(--rc, var(--muted));
-      font-size: 15px;
-      line-height: 1.3;
-      flex-shrink: 0;
-    }
-
-    .source-tag {
-      font-size: 10px;
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-weight: 500;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
+    .reasons-list li { display: flex; align-items: flex-start; justify-content: space-between; gap: 7px; font-size: 13px; color: #b0b5c4; line-height: 1.5; }
+    .reasons-list li .reason-text { display: flex; align-items: flex-start; gap: 7px; }
+    .reasons-list li .reason-text::before { content: '›'; color: var(--rc, var(--muted)); font-size: 15px; line-height: 1.3; flex-shrink: 0; }
+    .source-tag { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 500; flex-shrink: 0; margin-top: 2px; }
     .tag-rule { background: rgba(245,158,11,0.12); color: #fbbf24; }
     .tag-ai   { background: rgba(99,102,241,0.15); color: #a5b4fc; }
 
-    /* Share button */
-    .share-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 12px;
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      color: var(--muted);
-      font-size: 13px;
-      cursor: pointer;
-      width: 100%;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-
+    .share-btn { display: flex; align-items: center; gap: 6px; margin-top: 12px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); font-size: 13px; cursor: pointer; width: 100%; justify-content: center; transition: all 0.15s; }
     .share-btn:hover { border-color: var(--accent); color: var(--accent); }
     .share-btn.copied { border-color: var(--green); color: var(--green); }
 
-    .feedback-section {
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-      text-align: center;
-    }
-
+    .feedback-section { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); text-align: center; }
     .feedback-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-
     .feedback-btns { display: flex; gap: 8px; justify-content: center; }
-    .feedback-btns button {
-      padding: 7px 18px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      color: var(--text);
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .feedback-btns button:hover { border-color: rgba(255,255,255,0.2); }
+    .feedback-btns button { padding: 7px 18px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; cursor: pointer; }
     .feedback-thanks { font-size: 13px; color: var(--green); }
 
-    /* ── History tab ── */
-    .history-empty {
-      text-align: center;
-      color: var(--muted);
-      font-size: 14px;
-      padding: 40px 0;
-    }
-
-    .history-item {
+    /* ── BULK SCAN ── */
+    .bulk-input {
+      width: 100%;
       background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: border-color 0.15s;
-    }
-
-    .history-item:hover { border-color: rgba(255,255,255,0.15); }
-
-    .history-item-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 6px;
-    }
-
-    .history-label {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 6px;
-    }
-
-    .hl-scam     { background: var(--red-dim); color: var(--red); }
-    .hl-spam     { background: var(--amber-dim); color: var(--amber); }
-    .hl-suspicious { background: rgba(251,191,36,0.12); color: #fbbf24; }
-    .hl-safe     { background: var(--green-dim); color: var(--green); }
-
-    .history-time { font-size: 11px; color: var(--muted); }
-    .history-text {
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
       font-size: 13px;
-      color: #9ca3af;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      line-height: 1.7;
+      padding: 12px 14px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
     }
 
+    .bulk-input:focus { border-color: var(--accent); }
+    .bulk-input::placeholder { color: var(--muted); }
+
+    .bulk-hint { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+
+    .bulk-results { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+    .bulk-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 13px;
+      transition: border-color 0.2s;
+    }
+
+    .bulk-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .bulk-item-text { font-size: 12px; color: #9ca3af; line-height: 1.5; }
+
+    .bulk-label { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
+    .bl-scam { background: var(--red-dim); color: var(--red); }
+    .bl-spam { background: var(--amber-dim); color: var(--amber); }
+    .bl-suspicious { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .bl-safe { background: var(--green-dim); color: var(--green); }
+
+    .bulk-confidence { font-size: 11px; color: var(--muted); }
+
+    .bulk-progress { font-size: 13px; color: var(--muted); text-align: center; margin-top: 10px; }
+
+    /* ── HISTORY ── */
+    .history-empty { text-align: center; color: var(--muted); font-size: 14px; padding: 40px 0; }
+    .history-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.15s; }
+    .history-item:hover { border-color: rgba(255,255,255,0.15); }
+    .history-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .history-label { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
+    .hl-scam { background: var(--red-dim); color: var(--red); }
+    .hl-spam { background: var(--amber-dim); color: var(--amber); }
+    .hl-suspicious { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .hl-safe { background: var(--green-dim); color: var(--green); }
+    .history-time { font-size: 11px; color: var(--muted); }
+    .history-text { font-size: 13px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .history-confidence { font-size: 11px; color: var(--muted); margin-top: 4px; }
 
-    /* ── Stats tab ── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .stat-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      text-align: center;
-    }
-
-    .stat-number {
-      font-family: 'Syne', sans-serif;
-      font-size: 28px;
-      font-weight: 800;
-      color: #fff;
-    }
-
+    /* ── STATS ── */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .stat-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-align: center; }
+    .stat-number { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #fff; }
     .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
-
-    .stat-card.red   .stat-number { color: var(--red); }
+    .stat-card.red .stat-number { color: var(--red); }
     .stat-card.amber .stat-number { color: var(--amber); }
     .stat-card.green .stat-number { color: var(--green); }
     .stat-card.purple .stat-number { color: var(--accent); }
-
     .bar-chart { margin-top: 4px; }
-
-    .bar-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
     .bar-label { font-size: 12px; color: var(--muted); width: 80px; flex-shrink: 0; }
-
-    .bar-track {
-      flex: 1;
-      height: 8px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 99px;
-      overflow: hidden;
-    }
-
+    .bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 99px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s ease; }
     .bar-count { font-size: 12px; color: var(--muted); width: 24px; text-align: right; flex-shrink: 0; }
 
-    /* ── Learn tab ── */
-    .learn-card h3 {
-      font-family: 'Syne', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 10px;
-    }
-
+    /* ── LEARN ── */
+    .learn-card h3 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 10px; }
     .learn-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .learn-card li { font-size: 13px; color: #9ca3af; display: flex; align-items: center; gap: 8px; line-height: 1.5; }
+    .learn-card li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 
-    .learn-card li {
-      font-size: 13px;
-      color: #9ca3af;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      line-height: 1.5;
+    /* ── Mobile ── */
+    @media (max-width: 400px) {
+      .tabs { gap: 2px; }
+      .tab { font-size: 11px; padding: 8px 4px; }
+      .btn { font-size: 12px; padding: 10px 10px; }
+      .hero-title { font-size: 28px; }
+      .features { grid-template-columns: 1fr 1fr; }
+      .landing-stats { gap: 20px; }
     }
-
-    .learn-card li::before {
-      content: '';
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--accent);
-      flex-shrink: 0;
-    }
-
-
   </style>
 </head>
-
 <body>
 
-<header>
-  <div class="logo">
-    <div class="logo-icon"></div>
-    <h1>Scam Detector</h1>
-  </div>
-  <p class="subtitle">AI-powered threat analysis</p>
-</header>
+<!-- ══════════════════════════════════════════════════════
+     LANDING PAGE
+══════════════════════════════════════════════════════ -->
+<div id="landingPage">
 
-<div class="app">
+  <div class="landing-hero">
+    <div class="hero-badge">Built for South Africa</div>
+    <div class="hero-icon"></div>
+    <h1 class="hero-title">Stop <span>Scams</span><br>Before They Stop You</h1>
+    <p class="hero-desc">Paste any suspicious SMS, email, or link. Our AI analyses it in seconds and tells you exactly what to watch out for.</p>
 
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('scan', this)">Scan</button>
-    <button class="tab" onclick="showTab('history', this)">History</button>
-    <button class="tab" onclick="showTab('stats', this)">Stats</button>
-    <button class="tab" onclick="showTab('learn', this)">Learn</button>
-  </div>
-
-  <!-- ── SCAN TAB ── -->
-  <div id="scanTab">
-
-    <div class="disclaimer">
-      <span>Risk analysis only, not a guarantee. Always verify important messages independently.</span>
-    </div>
-
-    <div class="card">
-      <label for="inputText"></label><textarea id="inputText" rows="5" placeholder="Paste an SMS, email, or URL to scan"></textarea>
-
-      <div class="button-group">
-        <button id="scanBtn" class="btn btn-scan" onclick="scan()">Scan message</button>
-        <button class="btn btn-example" onclick="tryExample()">Example</button>
-        <button class="btn btn-clear" onclick="clearText()">Clear</button>
-      </div>
-
-      <div id="loading" class="loading"></div>
-    </div>
-
-    <!-- RESULT -->
-    <div id="resultCard">
-      <div class="result-card-inner" id="resultInner">
-
-        <div class="result-header">
-          <div class="verdict-badge">
-            <div class="verdict-dot"></div>
-            <span class="verdict-text" id="verdictText"></span>
-          </div>
-          <span class="confidence-pill" id="confidencePill"></span>
-        </div>
-
-        <div class="score-bar-wrap">
-          <div class="score-bar-track">
-            <div class="score-bar-fill" id="scoreBar" style="width:0%"></div>
-          </div>
-        </div>
-
-        <div id="categoryChip"></div>
-
-        <div id="aiInsight" style="display:none">
-          <div class="ai-insight">
-            <div class="ai-insight-label">✦ AI Analysis</div>
-            <div id="aiSummaryText"></div>
-          </div>
-          <div class="ai-action" id="aiActionBox">
-            <span id="aiActionText"></span>
-          </div>
-        </div>
-
-        <div class="reasons-label">Detected signals</div>
-        <ul class="reasons-list" id="reasons"></ul>
-
-        <button class="share-btn" id="shareBtn" onclick="shareResult()">📋 Copy result to clipboard</button>
-
-        <div class="feedback-section" id="feedbackSection"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── HISTORY TAB ── -->
-  <div id="historyTab" style="display:none">
-    <div class="card" style="padding:12px 14px; display:flex; align-items:center; justify-content:space-between;">
-      <span style="font-size:13px; color:var(--muted);">Recent scans</span>
-      <button onclick="clearHistory()" style="background:transparent; border:none; color:var(--muted); font-size:12px; cursor:pointer; padding:0;">Clear all</button>
-    </div>
-    <div id="historyList"></div>
-  </div>
-
-  <!-- ── STATS TAB ── -->
-  <div id="statsTab" style="display:none">
-    <div class="stats-grid">
-      <div class="stat-card purple">
-        <div class="stat-number" id="statTotal">0</div>
-        <div class="stat-label">Total scans</div>
-      </div>
-      <div class="stat-card red">
-        <div class="stat-number" id="statScam">0</div>
-        <div class="stat-label">Scams caught</div>
-      </div>
-      <div class="stat-card amber">
-        <div class="stat-number" id="statSpam">0</div>
-        <div class="stat-label">Spam detected</div>
-      </div>
-      <div class="stat-card green">
-        <div class="stat-number" id="statSafe">0</div>
-        <div class="stat-label">Safe messages</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="reasons-label" style="margin-top:0">Breakdown</div>
-      <div class="bar-chart" id="barChart"></div>
+    <div class="hero-cta">
+      <button class="btn-hero btn-hero-primary" onclick="enterApp()">Start Scanning, It's Free</button>
+      <button class="btn-hero btn-hero-secondary" onclick="enterApp('bulk')">Scan Multiple Messages</button>
     </div>
   </div>
 
-  <!-- ── LEARN TAB ── -->
-  <div id="learnTab" style="display:none">
-
-    <div class="card learn-card">
-      <h3>How to spot a scam</h3>
-      <ul>
-        <li>Urgent language: "Act now", "Final notice", "Account blocked"</li>
-        <li>Requests for OTP, PIN, password, or CVV</li>
-        <li>Suspicious or shortened links (bit.ly, .xyz, .top)</li>
-        <li>Too-good-to-be-true offers or prize winnings</li>
-        <li>Generic greetings like "Dear Customer"</li>
-      </ul>
+  <div class="landing-stats">
+    <div style="text-align:center">
+      <div class="landing-stat-num">AI</div>
+      <div class="landing-stat-label">Powered detection</div>
     </div>
-
-    <div class="card learn-card">
-      <h3>Common scam types in South Africa</h3>
-      <ul>
-        <li>Bank impersonation (ABSA, FNB, Capitec, Nedbank)</li>
-        <li>SASSA / government grant fraud</li>
-        <li>Fake parcel or delivery fees</li>
-        <li>Lottery & prize scams</li>
-        <li>Job offer scams</li>
-        <li>WhatsApp investment / crypto scams</li>
-      </ul>
+    <div style="text-align:center">
+      <div class="landing-stat-num">8+</div>
+      <div class="landing-stat-label">Scam categories</div>
     </div>
-
-    <div class="card learn-card">
-      <h3>Safety tips</h3>
-      <ul>
-        <li>Never share your OTP or PIN, not even with your bank</li>
-        <li>Hover over links before clicking; verify the domain</li>
-        <li>Call the official company number, not one in the message</li>
-        <li>Don't act under pressure, scammers rely on urgency</li>
-        <li>When in doubt, delete and report</li>
-      </ul>
+    <div style="text-align:center">
+      <div class="landing-stat-num">ZA</div>
+      <div class="landing-stat-label">SA-specific rules</div>
     </div>
+  </div>
 
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon"></div>
+      <div class="feature-title">SMS & WhatsApp</div>
+      <div class="feature-desc">Detect smishing and fake prize messages</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"></div>
+      <div class="feature-title">Email phishing</div>
+      <div class="feature-desc">Spot fake bank and SASSA emails</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"></div>
+      <div class="feature-title">Suspicious links</div>
+      <div class="feature-desc">Flag spoofed domains instantly</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"></div>
+      <div class="feature-title">Bulk scanning</div>
+      <div class="feature-desc">Scan multiple messages at once</div>
+    </div>
   </div>
 
 </div>
 
+
+<!-- ══════════════════════════════════════════════════════
+     APP PAGE
+══════════════════════════════════════════════════════ -->
+<div id="appPage">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon"></div>
+      <h1>Scam Detector</h1>
+    </div>
+    <p class="subtitle">AI-powered threat analysis · <span style="color:var(--accent); cursor:pointer;" onclick="goHome()">Home</span></p>
+  </header>
+
+  <div class="app">
+
+    <div class="tabs">
+      <button class="tab active" id="tab-scan"  onclick="showTab('scan', this)">Scan</button>
+      <button class="tab"        id="tab-bulk"  onclick="showTab('bulk', this)">Bulk</button>
+      <button class="tab"        id="tab-history" onclick="showTab('history', this)">History</button>
+      <button class="tab"        id="tab-stats"   onclick="showTab('stats', this)">Stats</button>
+      <button class="tab"        id="tab-learn"   onclick="showTab('learn', this)">Learn</button>
+    </div>
+
+    <!-- ── SCAN TAB ── -->
+    <div id="scanTab">
+      <div class="disclaimer"><span>Risk analysis only, not a guarantee. Always verify important messages independently.</span></div>
+
+      <div class="card">
+        <label for="inputText"></label><textarea id="inputText" rows="5" placeholder="Paste an SMS, email, or URL to scan"></textarea>
+        <div class="button-group">
+          <button id="scanBtn" class="btn btn-scan" onclick="scan()">Scan message</button>
+          <button class="btn btn-example" onclick="tryExample()">Example</button>
+          <button class="btn btn-clear" onclick="clearText()">Clear</button>
+        </div>
+        <div id="loading" class="loading"></div>
+      </div>
+
+      <div id="resultCard">
+        <div class="result-card-inner" id="resultInner">
+          <div class="result-header">
+            <div class="verdict-badge">
+              <div class="verdict-dot"></div>
+              <span class="verdict-text" id="verdictText"></span>
+            </div>
+            <span class="confidence-pill" id="confidencePill"></span>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar-track"><div class="score-bar-fill" id="scoreBar" style="width:0%"></div></div>
+          </div>
+          <div id="categoryChip"></div>
+          <div id="aiInsight" style="display:none">
+            <div class="ai-insight">
+              <div class="ai-insight-label">✦ AI Analysis</div>
+              <div id="aiSummaryText"></div>
+            </div>
+            <div class="ai-action" id="aiActionBox"><span id="aiActionText"></span></div>
+          </div>
+          <div class="reasons-label">Detected signals</div>
+          <ul class="reasons-list" id="reasons"></ul>
+          <button class="share-btn" id="shareBtn" onclick="shareResult()">📋 Copy result to clipboard</button>
+          <div class="feedback-section" id="feedbackSection"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BULK SCAN TAB ── -->
+    <div id="bulkTab" style="display:none">
+      <div class="card">
+        <div style="font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#fff; margin-bottom:8px;">Scan multiple messages</div>
+        <label for="bulkInput"></label><textarea class="bulk-input" id="bulkInput" rows="8" placeholder="Paste one message per line:
+
+URGENT: Your ABSA account is suspended...
+Congratulations! You won R5000...
+Your Takealot order has shipped..."></textarea>
+        <p class="bulk-hint">Enter one message per line. Each line is scanned separately.</p>
+        <div class="button-group">
+          <button class="btn btn-scan" onclick="bulkScan()">Scan all</button>
+          <button class="btn btn-clear" onclick="document.getElementById('bulkInput').value=''; document.getElementById('bulkResults').innerHTML='';">Clear</button>
+        </div>
+        <div id="bulkProgress" class="bulk-progress"></div>
+      </div>
+      <div id="bulkResults" class="bulk-results"></div>
+    </div>
+
+    <!-- ── HISTORY TAB ── -->
+    <div id="historyTab" style="display:none">
+      <div class="card" style="padding:12px 14px; display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:13px; color:var(--muted);">Recent scans</span>
+        <button onclick="clearHistory()" style="background:transparent; border:none; color:var(--muted); font-size:12px; cursor:pointer;">Clear all</button>
+      </div>
+      <div id="historyList"></div>
+    </div>
+
+    <!-- ── STATS TAB ── -->
+    <div id="statsTab" style="display:none">
+      <div class="stats-grid">
+        <div class="stat-card purple"><div class="stat-number" id="statTotal">0</div><div class="stat-label">Total scans</div></div>
+        <div class="stat-card red"><div class="stat-number" id="statScam">0</div><div class="stat-label">Scams caught</div></div>
+        <div class="stat-card amber"><div class="stat-number" id="statSpam">0</div><div class="stat-label">Spam detected</div></div>
+        <div class="stat-card green"><div class="stat-number" id="statSafe">0</div><div class="stat-label">Safe messages</div></div>
+      </div>
+      <div class="card">
+        <div class="reasons-label" style="margin-top:0">Breakdown</div>
+        <div class="bar-chart" id="barChart"></div>
+      </div>
+    </div>
+
+    <!-- ── LEARN TAB ── -->
+    <div id="learnTab" style="display:none">
+      <div class="card learn-card">
+        <h3>How to spot a scam</h3>
+        <ul>
+          <li>Urgent language: "Act now", "Final notice", "Account blocked"</li>
+          <li>Requests for OTP, PIN, password, or CVV</li>
+          <li>Suspicious or shortened links (bit.ly, .xyz, .top)</li>
+          <li>Too-good-to-be-true offers or prize winnings</li>
+          <li>Generic greetings like "Dear Customer"</li>
+        </ul>
+      </div>
+      <div class="card learn-card">
+        <h3>Common scam types in South Africa</h3>
+        <ul>
+          <li>Bank impersonation (ABSA, FNB, Capitec, Nedbank)</li>
+          <li>SASSA / government grant fraud</li>
+          <li>Fake parcel or delivery fees</li>
+          <li>Lottery & prize scams</li>
+          <li>Job offer scams</li>
+          <li>WhatsApp investment / crypto scams</li>
+        </ul>
+      </div>
+      <div class="card learn-card">
+        <h3>Safety tips</h3>
+        <ul>
+          <li>Never share your OTP or PIN, not even with your bank</li>
+          <li>Hover over links before clicking; verify the domain</li>
+          <li>Call the official company number, not one in the message</li>
+          <li>Don't act under pressure, scammers rely on urgency</li>
+          <li>When in doubt, delete and report</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
 <script>
 // ── Examples ──────────────────────────────────────────────────────────────────
 const EXAMPLES = [
-  { tag: "BANK", color: "#ef4444", text: "URGENT: Your ABSA account has been suspended. Verify now: http://absa-secure.xyz" },
-  { tag: "BANK", color: "#ef4444", text: "Capitec Alert: Unusual login detected. Confirm your details: http://capitec-verify.ru/login" },
-  { tag: "SASSA", color: "#f59e0b", text: "SASSA: Your R350 grant has been approved. Click to claim: http://sassa-grant.xyz/claim" },
-  { tag: "JOB",  color: "#6366f1", text: "You have been selected for a work from home job paying R800/day. WhatsApp +27810000000 to apply." },
-  { tag: "PRIZE", color: "#f59e0b", text: "Congratulations! You've won R10,000 in the Shoprite lucky draw. Claim now: http://bit.ly/shoprite-win" },
-  { tag: "DELIVERY", color: "#6b7280", text: "Your Takealot parcel is on hold. Pay R49 delivery fee to release: http://takealot-delivery.top" },
-  { tag: "CRYPTO", color: "#ef4444", text: "Invest R500 and earn R5000 in 24hrs. Guaranteed returns. Join our WhatsApp group now!" },
-  { tag: "SAFE", color: "#22c55e", text: "Hi, your Woolworths order #45231 has been shipped and will arrive tomorrow between 9am-1pm." },
+  "URGENT: Your ABSA account has been suspended. Verify now: http://absa-secure.xyz",
+  "Capitec Alert: Unusual login detected. Confirm your details: http://capitec-verify.ru/login",
+  "SASSA: Your R350 grant has been approved. Click to claim: http://sassa-grant.xyz/claim",
+  "You have been selected for a work from home job paying R800/day. WhatsApp +27810000000 to apply.",
+  "Congratulations! You've won R10,000 in the Shoprite lucky draw. Claim: http://bit.ly/shoprite-win",
+  "Your Takealot parcel is on hold. Pay R49 delivery fee: http://takealot-delivery.top",
+  "Invest R500 and earn R5000 in 24hrs. Guaranteed returns. Join our WhatsApp group now!",
+  "Hi, your Woolworths order #45231 has been shipped and will arrive tomorrow between 9am-1pm.",
 ];
 
-function tryExample() {
-  const random = EXAMPLES[Math.floor(Math.random() * EXAMPLES.length)];
-  document.getElementById("inputText").value = random.text;
-  setTimeout(() => scan(), 300);
+// ── Landing / navigation ──────────────────────────────────────────────────────
+function enterApp(tab) {
+  document.getElementById("landingPage").style.display = "none";
+  document.getElementById("appPage").style.display = "block";
+  if (tab === "bulk") {
+    showTab("bulk", document.getElementById("tab-bulk"));
+  }
+  window.scrollTo(0, 0);
 }
 
-// ── Local storage for history ─────────────────────────────────────────────────
+function goHome() {
+  document.getElementById("appPage").style.display = "none";
+  document.getElementById("landingPage").style.display = "flex";
+  window.scrollTo(0, 0);
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function showTab(tab, el) {
+  ["scan","bulk","history","stats","learn"].forEach(t => {
+    document.getElementById(t + "Tab").style.display = t === tab ? "block" : "none";
+  });
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  el.classList.add("active");
+  if (tab === "history") renderHistory();
+  if (tab === "stats")   renderStats();
+}
+
+// ── Local storage ─────────────────────────────────────────────────────────────
 function getHistory() {
   try { return JSON.parse(localStorage.getItem("scanHistory") || "[]"); }
   catch { return []; }
 }
 
 function saveToHistory(entry) {
-  const history = getHistory();
-  history.unshift(entry);
-  if (history.length > 50) history.pop(); // keep last 50
-  localStorage.setItem("scanHistory", JSON.stringify(history));
+  const h = getHistory();
+  h.unshift(entry);
+  if (h.length > 50) h.pop();
+  localStorage.setItem("scanHistory", JSON.stringify(h));
 }
 
 function clearHistory() {
@@ -700,19 +742,7 @@ function clearHistory() {
   }
 }
 
-// ── Tab switching ─────────────────────────────────────────────────────────────
-function showTab(tab, el) {
-  ["scan","history","stats","learn"].forEach(t => {
-    document.getElementById(t + "Tab").style.display = t === tab ? "block" : "none";
-  });
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  el.classList.add("active");
-
-  if (tab === "history") renderHistory();
-  if (tab === "stats") renderStats();
-}
-
-// ── Scan ──────────────────────────────────────────────────────────────────────
+// ── Single scan ───────────────────────────────────────────────────────────────
 let lastResult = null;
 let lastScannedText = "";
 
@@ -734,7 +764,6 @@ async function scan() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text })
     });
-
     const data = await res.json();
     if (!data || !data.risk) throw new Error("Invalid response");
 
@@ -742,24 +771,69 @@ async function scan() {
     btn.disabled = false;
     lastResult = data;
 
-    // Save to history
-    saveToHistory({
-      text: text,
-      label: data.label,
-      confidence: data.confidence,
-      risk: data.risk,
-      time: new Date().toISOString()
-    });
-
+    saveToHistory({ text, label: data.label, confidence: data.confidence, risk: data.risk, time: new Date().toISOString() });
     renderResult(data);
-
   } catch (e) {
     loading.innerText = "Error scanning. Please try again.";
     btn.disabled = false;
   }
 }
 
-// ── Render result ─────────────────────────────────────────────────────────────
+// ── Bulk scan ─────────────────────────────────────────────────────────────────
+async function bulkScan() {
+  const raw = document.getElementById("bulkInput").value;
+  const lines = raw.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+
+  if (lines.length === 0) { document.getElementById("bulkProgress").innerText = "Please enter at least one message."; return; }
+
+  const resultsEl = document.getElementById("bulkResults");
+  const progressEl = document.getElementById("bulkProgress");
+  resultsEl.innerHTML = "";
+
+  for (let i = 0; i < lines.length; i++) {
+    progressEl.innerHTML = `<div class="dot-pulse"><span></span><span></span><span></span></div> Scanning ${i + 1} of ${lines.length}…`;
+
+    try {
+      const res = await fetch("/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: lines[i] })
+      });
+      const data = await res.json();
+
+      saveToHistory({ text: lines[i], label: data.label, confidence: data.confidence, risk: data.risk, time: new Date().toISOString() });
+
+      const labelClass = { SCAM: "bl-scam", SPAM: "bl-spam", SUSPICIOUS: "bl-suspicious", SAFE: "bl-safe" }[data.label] || "bl-safe";
+      const emoji = data.risk === "HIGH" ? "🔴" : data.risk === "MEDIUM" ? "🟡" : "🟢";
+
+      const div = document.createElement("div");
+      div.className = "bulk-item";
+      div.style.borderColor = data.risk === "HIGH" ? "rgba(239,68,68,0.3)" : data.risk === "MEDIUM" ? "rgba(245,158,11,0.3)" : "rgba(34,197,94,0.2)";
+      div.innerHTML = `
+        <div class="bulk-item-header">
+          <span class="bulk-label ${labelClass}">${emoji} ${data.label}</span>
+          <span class="bulk-confidence">${data.confidence}% · ${data.risk}</span>
+        </div>
+        <div class="bulk-item-text">${lines[i]}</div>
+        ${data.ai_summary ? `<div style="font-size:12px; color:#c4c6f7; margin-top:6px; padding-top:6px; border-top:1px solid rgba(255,255,255,0.06)">✦ ${data.ai_summary}</div>` : ""}
+      `;
+      resultsEl.appendChild(div);
+
+    } catch (e) {
+      const div = document.createElement("div");
+      div.className = "bulk-item";
+      div.innerHTML = `<div class="bulk-item-text" style="color:var(--red)">Error scanning: ${lines[i]}</div>`;
+      resultsEl.appendChild(div);
+    }
+
+    // Small delay to avoid rate limits
+    if (i < lines.length - 1) await new Promise(r => setTimeout(r, 500));
+  }
+
+  progressEl.innerHTML = `✓ Done — ${lines.length} message${lines.length > 1 ? "s" : ""} scanned`;
+}
+
+// ── Render single result ──────────────────────────────────────────────────────
 function renderResult(data) {
   const card = document.getElementById("resultCard");
   const inner = document.getElementById("resultInner");
@@ -767,32 +841,25 @@ function renderResult(data) {
   const riskClass = data.risk === "HIGH" ? "r-high" : data.risk === "MEDIUM" ? "r-medium" : "r-low";
   inner.className = "result-card-inner " + riskClass;
 
-  const riskEmoji = data.risk === "HIGH" ? "🔴" : data.risk === "MEDIUM" ? "🟡" : "🟢";
-  document.getElementById("verdictText").innerText = riskEmoji + " " + data.label;
+  const emoji = data.risk === "HIGH" ? "🔴" : data.risk === "MEDIUM" ? "🟡" : "🟢";
+  document.getElementById("verdictText").innerText = emoji + " " + data.label;
   document.getElementById("confidencePill").innerText = data.confidence + "% confidence";
 
-  requestAnimationFrame(() => {
-    document.getElementById("scoreBar").style.width = data.confidence + "%";
-  });
+  requestAnimationFrame(() => { document.getElementById("scoreBar").style.width = data.confidence + "%"; });
 
   const chip = document.getElementById("categoryChip");
   if (data.ai_category && data.ai_category !== "safe") {
     chip.innerHTML = '<span class="category-chip">' + data.ai_category.replace(/_/g, " ") + '</span>';
     chip.style.display = "block";
-  } else {
-    chip.style.display = "none";
-  }
+  } else { chip.style.display = "none"; }
 
   const aiBox = document.getElementById("aiInsight");
   if (data.ai_available && data.ai_summary) {
     document.getElementById("aiSummaryText").innerText = data.ai_summary;
-    const actionBox = document.getElementById("aiActionBox");
     document.getElementById("aiActionText").innerText = data.ai_action || "";
-    actionBox.className = "ai-action" + (data.risk === "HIGH" ? " danger" : "");
+    document.getElementById("aiActionBox").className = "ai-action" + (data.risk === "HIGH" ? " danger" : "");
     aiBox.style.display = "block";
-  } else {
-    aiBox.style.display = "none";
-  }
+  } else { aiBox.style.display = "none"; }
 
   const list = document.getElementById("reasons");
   list.innerHTML = "";
@@ -809,7 +876,6 @@ function renderResult(data) {
     });
   }
 
-  // Reset share button
   const shareBtn = document.getElementById("shareBtn");
   shareBtn.className = "share-btn";
   shareBtn.innerText = "📋 Copy result to clipboard";
@@ -826,55 +892,48 @@ function renderResult(data) {
   card.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-// ── Share result ──────────────────────────────────────────────────────────────
+// ── Share ─────────────────────────────────────────────────────────────────────
 function shareResult() {
   if (!lastResult) return;
-
   const d = lastResult;
   const lines = [
-    `🛡 Scam Detector Result`,
-    `─────────────────────`,
+    "🛡 Scam Detector Result",
+    "─────────────────────",
     `Verdict: ${d.label} (${d.confidence}% confidence)`,
     `Risk: ${d.risk}`,
   ];
-
   if (d.ai_summary) lines.push(`\nAI Analysis: ${d.ai_summary}`);
   if (d.ai_action)  lines.push(`Action: ${d.ai_action}`);
-
-  if (d.reasons && d.reasons.length > 0) {
-    lines.push(`\nDetected signals:`);
-    d.reasons.forEach(r => lines.push(`• ${r}`));
-  }
-
-  lines.push(`\nScanned with Scam Detector`);
+  if (d.reasons?.length) { lines.push("\nDetected signals:"); d.reasons.forEach(r => lines.push(`• ${r}`)); }
+  lines.push("\nScanned with Scam Detector SA");
 
   navigator.clipboard.writeText(lines.join("\n")).then(() => {
     const btn = document.getElementById("shareBtn");
     btn.innerText = "✓ Copied!";
     btn.className = "share-btn copied";
-    setTimeout(() => {
-      btn.innerText = "📋 Copy result to clipboard";
-      btn.className = "share-btn";
-    }, 2000);
+    setTimeout(() => { btn.innerText = "📋 Copy result to clipboard"; btn.className = "share-btn"; }, 2000);
   });
 }
 
-// ── Clear ─────────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function clearText() {
   document.getElementById("inputText").value = "";
   document.getElementById("resultCard").style.display = "none";
   document.getElementById("loading").innerHTML = "";
 }
 
-// ── Feedback ──────────────────────────────────────────────────────────────────
+function tryExample() {
+  document.getElementById("inputText").value = EXAMPLES[Math.floor(Math.random() * EXAMPLES.length)];
+  setTimeout(() => scan(), 300);
+}
+
 async function sendFeedback(type) {
   await fetch("/feedback", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text: lastScannedText, feedback: type })
   });
-  document.getElementById("feedbackSection").innerHTML =
-    '<span class="feedback-thanks">✓ Thanks for your feedback!</span>';
+  document.getElementById("feedbackSection").innerHTML = '<span class="feedback-thanks">✓ Thanks for your feedback!</span>';
 }
 
 // ── History ───────────────────────────────────────────────────────────────────
@@ -891,16 +950,8 @@ function renderHistory() {
   history.forEach(item => {
     const div = document.createElement("div");
     div.className = "history-item";
-
-    const labelClass = {
-      SCAM: "hl-scam", SPAM: "hl-spam",
-      SUSPICIOUS: "hl-suspicious", SAFE: "hl-safe"
-    }[item.label] || "hl-safe";
-
-    const time = new Date(item.time).toLocaleString("en-ZA", {
-      day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"
-    });
-
+    const labelClass = { SCAM:"hl-scam", SPAM:"hl-spam", SUSPICIOUS:"hl-suspicious", SAFE:"hl-safe" }[item.label] || "hl-safe";
+    const time = new Date(item.time).toLocaleString("en-ZA", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" });
     div.innerHTML = `
       <div class="history-item-header">
         <span class="history-label ${labelClass}">${item.label}</span>
@@ -909,13 +960,11 @@ function renderHistory() {
       <div class="history-text">${item.text}</div>
       <div class="history-confidence">${item.confidence}% confidence · ${item.risk} risk</div>
     `;
-
     div.onclick = () => {
       document.getElementById("inputText").value = item.text;
-      showTab("scan", document.querySelectorAll(".tab")[0]);
+      showTab("scan", document.getElementById("tab-scan"));
       setTimeout(() => scan(), 300);
     };
-
     list.appendChild(div);
   });
 }
@@ -923,45 +972,39 @@ function renderHistory() {
 // ── Stats ─────────────────────────────────────────────────────────────────────
 function renderStats() {
   const history = getHistory();
-
-  const counts = { SCAM: 0, SPAM: 0, SUSPICIOUS: 0, SAFE: 0 };
+  const counts = { SCAM:0, SPAM:0, SUSPICIOUS:0, SAFE:0 };
   history.forEach(item => { if (counts[item.label] !== undefined) counts[item.label]++; });
-
   const total = history.length;
+
   document.getElementById("statTotal").innerText = total;
-  document.getElementById("statScam").innerText = counts.SCAM;
-  document.getElementById("statSpam").innerText = counts.SPAM;
-  document.getElementById("statSafe").innerText = counts.SAFE;
+  document.getElementById("statScam").innerText  = counts.SCAM;
+  document.getElementById("statSpam").innerText  = counts.SPAM;
+  document.getElementById("statSafe").innerText  = counts.SAFE;
 
   const chart = document.getElementById("barChart");
   chart.innerHTML = "";
 
-  const bars = [
-    { label: "Scam",       count: counts.SCAM,       color: "#ef4444" },
-    { label: "Spam",       count: counts.SPAM,       color: "#f59e0b" },
-    { label: "Suspicious", count: counts.SUSPICIOUS, color: "#fbbf24" },
-    { label: "Safe",       count: counts.SAFE,       color: "#22c55e" },
-  ];
+  if (total === 0) {
+    chart.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:16px 0">No scans yet</div>';
+    return;
+  }
 
-  bars.forEach(b => {
-    const pct = total > 0 ? (b.count / total * 100) : 0;
+  [
+    { label:"Scam",       count:counts.SCAM,       color:"#ef4444" },
+    { label:"Spam",       count:counts.SPAM,       color:"#f59e0b" },
+    { label:"Suspicious", count:counts.SUSPICIOUS, color:"#fbbf24" },
+    { label:"Safe",       count:counts.SAFE,       color:"#22c55e" },
+  ].forEach(b => {
     const row = document.createElement("div");
     row.className = "bar-row";
     row.innerHTML = `
       <span class="bar-label">${b.label}</span>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:${pct}%; background:${b.color}"></div>
-      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${total>0?b.count/total*100:0}%;background:${b.color}"></div></div>
       <span class="bar-count">${b.count}</span>
     `;
     chart.appendChild(row);
   });
-
-  if (total === 0) {
-    chart.innerHTML = '<div style="text-align:center; color:var(--muted); font-size:13px; padding:16px 0">No scans yet</div>';
-  }
 }
 </script>
-
 </body>
 </html>
